@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "test": "eslint *",
-    "prepare": "husky install",
     "format": "prettier --write ./public",
     "lint" : "eslint *"
   },
