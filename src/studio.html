@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawing studio</title>
+    <link rel = "stylesheet" href = "styles/studio.css">
+</head>
+<body>
+    <div id = "container">
+    <!--<div id="toolbar">
+        <div class="tool">
+            <img src="assets/toolbar/pencil.svg">
+        </div>
+    </div>-->
+    <canvas id = "canvas" width = "800" height = "600"></canvas>
+    <button id = "clearBtn">Clear canvas</button>
+    <form name="drawingOptions">
+        <p>
+            <label for="mode">Drawing mode:</label>
+            <select name="mode" size="1">
+                <option value="pencil">Pencil</option>
+                <option value="line">Line</option>
+                <option value="rect">Rectangle</option>
+                <option value="fill">Fill</option>
+                <option value="circle">Circle</option>
+                <option value="move">Move</option>
+            </select>
+        </p>
+        <p>
+            <label for="f-color">Fill color:</label>
+            <input type="color" name="f-color">
+        </p>
+        <p>
+            <label for="s-color">Stroke color:</label>
+            <input type="color" name="s-color">
+        </p>
+    </form>
+    </div>
+    <script>
+        let fillColor = document.forms[0]['f-color']
+        let strokeColor = document.forms[0]['s-color']
+        fillColor.addEventListener('input', (event) => {
+            ctx.fillStyle = event.target.value
+        })
+        strokeColor.addEventListener('input', (event) => {
+            ctx.strokeStyle = event.target.value
+        })
+    </script>
+    <script src = "scripts/canvas.js"></script>
+</body>
+</html>

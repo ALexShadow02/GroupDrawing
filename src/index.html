@@ -7,10 +7,17 @@
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     <meta name="google-signin-client_id" content="658268972084-3407e3sri2r7icaa9hsjmebi9ek38ehh.apps.googleusercontent.com">
     <title>Entry</title>
+    <style>
+        #start{
+            background-color: orange;
+            position: absolute;
+        }
+    </style>
 </head>
 <body>
     <div class="g-signin2" id="goog_but" data-onsuccess="signIn"></div>
     <a href="#" onclick="signOut();">Sign out</a>
+    <a href = "studio"><button id = "start">Start drawing</button></a>
     <script>
         function signIn(googleUser) {
             var profile = googleUser.getBasicProfile()
@@ -23,6 +30,9 @@
             var auth2 = gapi.auth2.getAuthInstance()
             auth2.signOut().then(() => console.log('User signed out.'))
         }
+        let startButton = document.getElementById('start');
+        startButton.style.left = (window.innerWidth / 2).toString()+'px';
+        startButton.style.top = (window.innerHeight / 2).toString()+'px';
     </script>
 </body>
 </html>

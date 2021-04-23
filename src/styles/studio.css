@@ -1,0 +1,51 @@
+#container{
+    display: inline;
+}
+#toolbar {
+    display: inline-block;
+    position: fixed;
+    top: 14vh;
+    width: 4.5rem;
+    z-index: 99;
+    left: 2rem;
+    text-align: center;
+    pointer-events: none;
+}
+.tool {
+    display: inline-block;
+    background-color: rgba(242,242,242,0.98);
+    border-radius: 50%;
+    -webkit-box-shadow: 0.1rem 0.1rem 0 rgb(0 0 0 / 25%);
+    box-shadow: 0.1rem 0.1rem 0 rgb(0 0 0 / 25%);
+    width: 3.5rem;
+    height: 3.5rem;
+    margin: 1rem 0;
+    pointer-events: auto;
+    position: relative;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: box;
+    display: flex;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -o-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -o-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+}
+#canvas{
+    border: 5px solid yellow;
+}
+#clearBtn{
+    position: absolute;
+    top: 5px;
+    margin-left: 10px;
+}
