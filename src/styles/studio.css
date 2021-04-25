@@ -42,7 +42,7 @@
     align-items: center;
 }
 #canvas{
-    border: 5px solid yellow;
+    border: 5px solid black;
 }
 #clearBtn{
     position: absolute;
