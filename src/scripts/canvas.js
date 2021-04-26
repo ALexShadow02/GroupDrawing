@@ -1,5 +1,6 @@
 let mouseDown = false
 let draggingFigure = null
+let ctxFigure = null
 window.onkeypress = (event) => {
     let keyCode = event.code.slice(event.code.length-1, event.code.length)
     if(keyCode == 'S') {
@@ -43,17 +44,70 @@ window.onkeypress = (event) => {
 const points = []
 const figures = []
 const canv = document.getElementById('canvas')
-const canvas = new fabric.Canvas('canvas')
 const canvPos = canv.getBoundingClientRect()
-/*canv.onmousedown = customMouseDown
+const ctxMenu = document.getElementById('figure_ctx_menu')
+canv.addEventListener('contextmenu', (event) => {
+    event.preventDefault()
+    let x0 = event.clientX - canvPos.left
+    let y0 = event.clientY - canvPos.top
+    ctxFigure = locateFigure([x0, y0])
+    if(!ctxFigure) return
+    ctxMenu.style.top = `${event.clientY}px`
+    ctxMenu.style.left = `${event.clientX}px`
+    ctxMenu.style.display = 'block'
+})
+ctxMenu.addEventListener('click', (event) => {
+    event.stopPropagation()
+})
+document.getElementById('dup_option').addEventListener('click', () => {
+    if(ctxFigure.type == 'rect'){
+        let clonedRect = clone(ctxFigure)
+        clonedRect.points[0][0] += 10
+        clonedRect.points[0][1] += 10
+        drawRectangle(clonedRect.points[0], ctxFigure.width, ctxFigure.height, ctxFigure.fillStyle, ctxFigure.strokeStyle)
+        figures.push(clonedRect)
+    }
+    else if(ctxFigure.type == 'circle'){
+        let clonedCircle = clone(ctxFigure)
+        clonedCircle.centre[0] += 10
+        clonedCircle.centre[1] += 10
+        drawCircle(clonedCircle.centre, ctxFigure.radius, ctxFigure.fillStyle, ctxFigure.strokeStyle)
+        figures.push(clonedCircle)
+    }
+    else if(ctxFigure.type == 'triangle'){
+        let clonedTriangle = clone(ctxFigure)
+        clonedTriangle.topPoint[0] += 10
+        clonedTriangle.topPoint[1] += 10
+        drawTriangle(clonedTriangle.topPoint, ctxFigure.width, ctxFigure.height, ctxFigure.fillStyle, ctxFigure.strokeStyle)
+        figures.push(clonedTriangle)
+    }
+    ctxFigure = null
+    ctxMenu.style.display = ''
+})
+document.getElementById('del_option').addEventListener('click', () => {
+    ctx.clearRect(0, 0, canv.width, canv.height)
+    for(let i = 0;i < figures.length;i++){
+        if(figures[i] == ctxFigure) {
+            figures.splice(i, 1)
+            break
+        }
+    }
+    drawFigures(figures)
+    ctxFigure = null
+    ctxMenu.style.display = ''
+})
+//const canvas = new fabric.Canvas('canvas')
+canv.onmousedown = customMouseDown
 canv.onmousemove = customMouseMove
-canv.onmouseup = customMouseUp*/
+canv.onmouseup = customMouseUp
 document.getElementById('clearBtn').onclick = () => {
     ctx.clearRect(0, 0, canv.width, canv.height)
     figures.length = 0 
 }
 const ctx = canv.getContext('2d')
 function customMouseDown(event){
+    if(event.button == 2) return
+    ctxMenu.style.display = ''
     let x0 = event.clientX - canvPos.left
     let y0 = event.clientY - canvPos.top
     let mode = document.forms[0].mode.value
@@ -70,6 +124,7 @@ function customMouseDown(event){
     ctx.moveTo(x0, y0)
 }
 function customMouseMove(event){
+    if(event.button == 2) return
     let x1 = event.clientX - canvPos.left
     let y1 = event.clientY - canvPos.top
     let mode = document.forms[0].elements[0].value
@@ -98,6 +153,10 @@ function customMouseMove(event){
             draggingFigure.points[0][0] += dx
             draggingFigure.points[0][1] += dy
         }
+        else if(draggingFigure.type == 'triangle'){
+            draggingFigure.topPoint[0] += dx
+            draggingFigure.topPoint[1] += dy
+        }
         else if(draggingFigure.type == 'circle'){
             draggingFigure.centre[0] += dx
             draggingFigure.centre[1] += dy
@@ -108,6 +167,7 @@ function customMouseMove(event){
     }
 }
 function customMouseUp(event){
+    if(event.button == 2) return
     mouseDown = false
     let mode = document.forms[0].mode.value
     let x1 = event.clientX - canvPos.left
@@ -151,9 +211,7 @@ function customMouseUp(event){
         ctx.arc(...points[0], Math.abs(Math.floor(x1-points[0][0])), 0, Math.PI * 2)
         ctx.closePath()
         ctx.stroke()
-        setTimeout(() => {
-            ctx.fill()
-        }, 300)
+        ctx.fill()
     }
     else if(mode == 'pencil' || mode == 'line'){
         ctx.lineTo(x1, y1)
@@ -168,6 +226,7 @@ function customMouseUp(event){
     else {
         let locatedFigure = locateFigure([x1, y1])
         fillFigure(locatedFigure)
+        locatedFigure.fillStyle = ctx.fillStyle
         return
     }
     points.push([x1, y1])
@@ -203,35 +262,52 @@ function drawByPoints(points){
         ctx.stroke()
     }
 }
+function drawRectangle(topPoint, width, height, fillColor, strokeColor){
+    let [x0, y0] = topPoint
+    ctx.fillStyle = fillColor
+    ctx.strokeStyle = strokeColor
+    ctx.strokeRect(x0, y0, width, height)
+    ctx.fillRect(x0, y0, width, height)
+    ctx.fillStyle = document.forms[0]['f-color'].value
+    ctx.strokeStyle = document.forms[0]['s-color'].value
+}
+function drawTriangle(topPoint, width, height, fillColor, strokeColor){
+    ctx.beginPath()
+    let [x0, y0] = topPoint
+    ctx.fillStyle = fillColor
+    ctx.strokeStyle = strokeColor
+    let x1 = x0 - (width / 2)
+    let y1 = y0 + height
+    ctx.moveTo(x0, y0)
+    ctx.lineTo(x1, y1)
+    ctx.lineTo(x1 + width, y1)
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
+    ctx.fillStyle = document.forms[0]['f-color'].value
+    ctx.strokeStyle = document.forms[0]['s-color'].value
+}
+function drawCircle(centre, radius, fillColor, strokeColor){
+    ctx.beginPath()
+    ctx.arc(...centre, radius, 0, Math.PI * 2)
+    ctx.closePath()
+    ctx.fillStyle = fillColor
+    ctx.strokeStyle = strokeColor
+    ctx.stroke()
+    ctx.fill()
+    ctx.fillStyle = document.forms[0]['f-color'].value
+    ctx.strokeStyle = document.forms[0]['s-color'].value
+}
 function drawFigures(figures){
     for(let figure of figures){
         if(figure.type == 'rect'){
-            let [x0, y0] = figure.points[0]
-            ctx.fillStyle = figure.fillStyle
-            ctx.strokeStyle = figure.strokeStyle
-            ctx.strokeRect(x0, y0, figure.width, figure.height)
-            ctx.fillRect(x0, y0, figure.width, figure.height)
+            drawRectangle(figure.points[0], figure.width, figure.height, figure.fillStyle, figure.strokeStyle)
         }
         else if(figure.type == 'triangle'){
-            ctx.beginPath()
-            let [x0, y0] = figure.topPoint
-            let x1 = x0 - (figure.width / 2)
-            let y1 = y0 + figure.height
-            ctx.moveTo(x0, y0)
-            ctx.lineTo(x1, y1)
-            ctx.lineTo(x1 + figure.width, y1)
-            ctx.closePath()
-            ctx.fill()
-            ctx.stroke()
+            drawTriangle(figure.topPoint, figure.width, figure.height, figure.fillStyle, figure.strokeStyle)
         }
         else if(figure.type == 'circle'){
-            ctx.beginPath()
-            ctx.arc(...figure.centre, figure.radius, 0, Math.PI * 2)
-            ctx.closePath()
-            ctx.fillStyle = figure.fillStyle
-            ctx.strokeStyle = figure.strokeStyle
-            ctx.stroke()
-            ctx.fill()
+            drawCircle(figure.centre, figure.radius, figure.fillStyle, figure.strokeStyle)
         }
         else if(figure.type == 'pencil' || figure.type == 'line'){
             ctx.strokeStyle = figure.strokeStyle
@@ -254,26 +330,38 @@ function drawFigures(figures){
     }
 }
 function locateFigure(point){
-    let [x1, y1] = point
+    let [x0, y0] = point
     for(let figure of figures){
         if(figure.type == 'rect'){
-            if(x1 <= figure.points[0][0] + figure.width
-            && x1 >= figure.points[0][0]
-            && y1 <= figure.points[0][1] + figure.height
-            && y1 >= figure.points[0][1]
+            if(x0 <= figure.points[0][0] + figure.width
+            && x0 >= figure.points[0][0]
+            && y0 <= figure.points[0][1] + figure.height
+            && y0 >= figure.points[0][1]
             ) {
                 return figure
             }
         }
         else if(figure.type == 'circle'){
-            if(Math.abs(x1 - figure.centre[0]) <= figure.radius 
-            && Math.abs(y1 - figure.centre[1]) <= figure.radius ) {
+            if(Math.abs(x0 - figure.centre[0]) <= figure.radius 
+            && Math.abs(y0 - figure.centre[1]) <= figure.radius ) {
                 return figure
             }
         }
+        else if(figure.type == 'triangle'){
+            let [x1, y1] = figure.topPoint
+            let x2 = x1 - figure.width / 2
+            let x3 = x1 + figure.width / 2
+            let y2 = y1 + figure.height
+            let y3 = y1 + figure.height
+            let A = calcArea([x1, y1], [x2, y2], [x3, y3])
+            let A1 = calcArea([x0, y0], [x2, y2], [x3, y3])
+            let A2 = calcArea([x1, y1], [x0, y0], [x3, y3])
+            let A3 = calcArea([x1, y1], [x2, y2], [x0, y0])
+            if(A == A1 + A2 + A3) return figure
+        }
         else if(figure.type == 'line' || figure.type == 'pencil'){
             for(let point of figure.points){
-                if(point[0] == x1 && point[1] == y1) {
+                if(point[0] == x0 && point[1] == y0) {
                     return figure
                 }
             }
@@ -283,6 +371,17 @@ function locateFigure(point){
 }
 function fillFigure(figure){
     if(figure.type == 'rect') ctx.fillRect(...figure.points[0], figure.width, figure.height)
+    if(figure.type == 'triangle'){
+        ctx.beginPath()
+        let [x0, y0] = figure.topPoint
+        let x1 = x0 - (figure.width / 2)
+        let y1 = y0 + figure.height
+        ctx.moveTo(x0, y0)
+        ctx.lineTo(x1, y1)
+        ctx.lineTo(x1 + figure.width, y1)
+        ctx.closePath()
+        ctx.fill()
+    }
     else {
         ctx.beginPath()
         ctx.arc(...figure.centre, figure.radius, 0, Math.PI * 2)
@@ -299,10 +398,11 @@ function download() {
     element.click()
     document.body.removeChild(element)
 }
-function cutCircle(x, y, radius){
-    ctx.globalCompositeOperation = 'destination-out'
-    ctx.arc(x, y, radius, 0, Math.PI*2, true)
-    ctx.fill()
+function calcArea(p1, p2, p3){
+    let [x1, y1] = p1
+    let [x2, y2] = p2
+    let [x3, y3] = p3
+    return Math.abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0)
 }
 function clone(obj){
     return JSON.parse(JSON.stringify(obj))
