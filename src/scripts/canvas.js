@@ -1,6 +1,7 @@
 let mouseDown = false
 let draggingFigure = null
 let ctxFigure = null
+let fabricMode = false
 window.onkeypress = (event) => {
     let keyCode = event.code.slice(event.code.length-1, event.code.length)
     if(keyCode == 'S') {
@@ -34,6 +35,9 @@ window.onkeypress = (event) => {
     }
     else if(keyCode == 'G'){
         alert(`Canv: x - ${canvPos.left};y - ${canvPos.top}`)
+    }
+    else if(keyCode == 'W'){
+        alert(`The widht of the line is ${ctx.lineWidth}`)
     }
     else if(keyCode == 'U'){
         ctx.clearRect(0, 0, canv.width, canv.height)
@@ -96,7 +100,10 @@ document.getElementById('del_option').addEventListener('click', () => {
     ctxFigure = null
     ctxMenu.style.display = ''
 })
-//const canvas = new fabric.Canvas('canvas')
+/*let canvas = new fabric.Canvas('canvas')
+canvas.on('mouse:down', customMouseDown)
+canvas.on('mouse:move', customMouseMove)
+canvas.on('mouse:up', customMouseUp)*/
 canv.onmousedown = customMouseDown
 canv.onmousemove = customMouseMove
 canv.onmouseup = customMouseUp
@@ -105,6 +112,7 @@ document.getElementById('clearBtn').onclick = () => {
     figures.length = 0 
 }
 const ctx = canv.getContext('2d')
+ctx.lineCap = 'round'
 function customMouseDown(event){
     if(event.button == 2) return
     ctxMenu.style.display = ''
@@ -139,11 +147,58 @@ function customMouseMove(event){
     else if(mouseDown && mode == 'rect'){
         let [x0, y0] = points[0]
         if(points[1] != undefined) {
-            ctx.clearRect(x0, y0, Math.floor(points[1][0]-x0), Math.floor(points[1][1]-y0))
             points.pop()
+            figures.pop()
+            ctx.clearRect(0, 0, canv.width, canv.height)
+            drawFigures(figures)
         }
         points.push([x1, y1])
         ctx.strokeRect(x0, y0, Math.floor(x1-x0), Math.floor(y1-y0))
+        let figure = {}
+        figure.type = 'rect'
+        figures.push(figure)
+    }
+    else if(mouseDown && mode == 'triangle'){
+        let [x0, y0] = points[0]
+        if(points[1] != undefined) {
+            points.pop()
+            figures.pop()
+            ctx.clearRect(0, 0, canv.width, canv.height)
+            drawFigures(figures)
+        }
+        points.push([x1, y1])
+        ctx.beginPath()
+        let width = Math.abs(x1 - x0) * 2
+        ctx.moveTo(x0, y0)
+        ctx.lineTo(x1, y1)
+        if(x0 > x1){
+            ctx.lineTo(x1 + width, y1)
+        }
+        else{
+            ctx.lineTo(x1 - width, y1)
+        }
+        ctx.closePath()
+        ctx.stroke()
+        let figure = {}
+        figure.type = 'triangle'
+        figures.push(figure)
+    }
+    else if(mouseDown && mode == 'circle'){
+        let [x0, y0] = points[0]
+        if(points[1] != undefined) {
+            points.pop()
+            figures.pop()
+            ctx.clearRect(0, 0, canv.width, canv.height)
+            drawFigures(figures)
+        }
+        points.push([x1, y1])
+        ctx.beginPath()
+        ctx.arc(...points[0], Math.abs(x1-x0), 0, Math.PI * 2)
+        ctx.closePath()
+        ctx.stroke()
+        let figure = {}
+        figure.type = 'circle'
+        figures.push(figure)
     }
     else if(mouseDown && mode == 'move'){
         let [x0, y0] = points[0]
@@ -174,39 +229,34 @@ function customMouseUp(event){
     let y1 = event.clientY - canvPos.top
     if(mode == 'rect'){
         let [x0, y0] = points[0]
-        ctx.clearRect(x0, y0, Math.floor(points[1][0]-x0), Math.floor(points[1][1]-y0))
         points.pop()
-        if(x0 < x1 && y0 < y1){
-            ctx.strokeRect(x0, y0, Math.floor(x1-x0), Math.floor(y1-y0))
-            setTimeout(() => {
-                ctx.fillRect(x0, y0, Math.floor(x1-x0), Math.floor(y1-y0))
-            }, 300)
-        }
-        else {
-            alert('Not possible to draw a rect')
-            points.length = 0 
-            return
-        }
+        figures.pop()
+        let smallerX = x0 < x1? x0 : x1
+        let smallerY = y0 < y1? y0 : y1
+        ctx.strokeRect(smallerX, smallerY, Math.abs(x1-x0), Math.abs(y1-y0))
+        ctx.fillRect(smallerX, smallerY, Math.abs(x1-x0), Math.abs(y1-y0))
     }
     else if(mode == 'triangle'){
         let [x0, y0] = points[0]
-        if(y0 < y1){
-            ctx.beginPath()
-            let width = Math.abs(x1 - x0) * 2
-            ctx.moveTo(x0, y0)
-            ctx.lineTo(x1, y1)
+        points.pop()
+        figures.pop()
+        ctx.beginPath()
+        let width = Math.abs(x1 - x0) * 2
+        ctx.moveTo(x0, y0)
+        ctx.lineTo(x1, y1)
+        if(x0 > x1){
             ctx.lineTo(x1 + width, y1)
-            ctx.closePath()
-            ctx.fill()
-            ctx.stroke()
         }
-        else {
-            alert('Not possible to draw a triangle')
-            points.length = 0 
-            return
+        else{
+            ctx.lineTo(x1 - width, y1)
         }
+        ctx.closePath()
+        ctx.fill()
+        ctx.stroke()
     }
     else if(mode == 'circle'){
+        points.pop()
+        figures.pop()
         ctx.beginPath()
         ctx.arc(...points[0], Math.abs(Math.floor(x1-points[0][0])), 0, Math.PI * 2)
         ctx.closePath()
@@ -248,6 +298,8 @@ function customMouseUp(event){
         figure.topPoint = points[0]
         figure.width = Math.abs(x1 - points[0][0]) * 2
         figure.height = Math.abs(y1 - points[0][1])
+        if(y1 >= points[0][1]) figure.topFlag = true 
+        else figure.topFlag = false
         figure.fillStyle = ctx.fillStyle
     }
     figures.push(figure)
@@ -271,13 +323,15 @@ function drawRectangle(topPoint, width, height, fillColor, strokeColor){
     ctx.fillStyle = document.forms[0]['f-color'].value
     ctx.strokeStyle = document.forms[0]['s-color'].value
 }
-function drawTriangle(topPoint, width, height, fillColor, strokeColor){
+function drawTriangle(topPoint, topFlag, width, height, fillColor, strokeColor){
     ctx.beginPath()
     let [x0, y0] = topPoint
     ctx.fillStyle = fillColor
     ctx.strokeStyle = strokeColor
     let x1 = x0 - (width / 2)
-    let y1 = y0 + height
+    let y1 = 0 
+    if(topFlag) y1 = y0 + height
+    else y1 = y0 - height
     ctx.moveTo(x0, y0)
     ctx.lineTo(x1, y1)
     ctx.lineTo(x1 + width, y1)
@@ -304,7 +358,7 @@ function drawFigures(figures){
             drawRectangle(figure.points[0], figure.width, figure.height, figure.fillStyle, figure.strokeStyle)
         }
         else if(figure.type == 'triangle'){
-            drawTriangle(figure.topPoint, figure.width, figure.height, figure.fillStyle, figure.strokeStyle)
+            drawTriangle(figure.topPoint, figure.topFlag, figure.width, figure.height, figure.fillStyle, figure.strokeStyle)
         }
         else if(figure.type == 'circle'){
             drawCircle(figure.centre, figure.radius, figure.fillStyle, figure.strokeStyle)

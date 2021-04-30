@@ -12,13 +12,13 @@
 <body>
     <div id = "container">
     <div id="toolbar">
-        <div class = "tool">
+        <div class = "tool" id = "move">
             <img src="assets/toolbar/pointer-on.svg" draggable = "false">
         </div>
-        <div class = "tool"> 
+        <div class = "tool" id = "pencil"> 
             <img src="assets/toolbar/pencil.svg" draggable = "false">
         </div>
-        <div class = "tool">
+        <div class = "tool" id = "fill">
             <img src="assets/toolbar/bucket.svg" draggable = "false">
         </div>
         <div class = "tool">
@@ -29,7 +29,9 @@
         <li id = "del_option">Delete</li>
         <li id = "dup_option">Duplicate</li>
     </ul>
-    <canvas id = "canvas" width = "800" height = "600"></canvas>
+    <div id="canvas-container">
+        <canvas id = "canvas" width = "800" height = "600"></canvas>
+    </div>
     <button id = "clearBtn">Clear canvas</button>
     <form name="drawingOptions">
         <p>
@@ -43,6 +45,14 @@
                 <option value="fill">Fill</option>
                 <option value="move">Move</option>
             </select>
+        </p>
+        <p>
+            <label for="p-width">Pencil width:</label>
+            <input type="range" name="p-width" min="1" max="10" step="1">
+        </p>
+        <p>
+            <label for="p-opacity">Pencil opacity:</label>
+            <input type="range" name="p-opacity" min="0" max="1" step="0.1">
         </p>
         <p>
             <label for="f-color">Fill color:</label>
@@ -59,9 +69,26 @@
     </form>
     </div>
     <script>
+        let activeTool = document.getElementById('pencil')
+        activeTool.style.border = '3px solid black'
+        let mode = document.forms[0]['mode']
+        let pencilWidth = document.forms[0]['p-width']
+        let pencilOpacity = document.forms[0]['p-opacity']
         let fillColor = document.forms[0]['f-color']
         let strokeColor = document.forms[0]['s-color']
         let canvasColor = document.forms[0]['c-color']
+        mode.addEventListener('input', (event) => {
+            let tool = document.getElementById(event.target.value)
+            tool.style.border = '3px solid black'
+            activeTool.style.border = ''
+            activeTool = tool
+        })
+        pencilWidth.addEventListener('input', (event) => {
+            ctx.lineWidth = event.target.value
+        })
+        pencilOpacity.addEventListener('input', (event) => {
+            ctx.globalAlpha = event.target.value
+        })
         fillColor.addEventListener('input', (event) => {
             ctx.fillStyle = event.target.value
         })
@@ -73,8 +100,11 @@
         })
         let tools = document.getElementsByClassName('tool')
         for(let tool of tools){
-            tool.addEventListener('keypress',() => {
+            tool.addEventListener('click',() => {
+                activeTool.style.border = ''
+                activeTool = tool
                 tool.style.border = '3px solid black'
+                document.forms[0].mode.value = tool.id
             })
         }
         window.addEventListener('keypress',(event) => {

@@ -41,7 +41,12 @@
     -webkit-align-items: center;
     align-items: center;
 }
+#canvas-container {
+    width: 100%;
+    text-align:center;
+}
 #canvas{
+    display: inline;
     border: 5px solid black;
 }
 #clearBtn{
