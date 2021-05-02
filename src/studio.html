@@ -10,19 +10,30 @@
     <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
 </head>
 <body>
-    <div id = "container">
+    <div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
     <div id="toolbar">
-        <div class = "tool" id = "move">
+        <div class = "tool" id = "move" title = "Move">
             <img src="assets/toolbar/pointer-on.svg" draggable = "false">
         </div>
-        <div class = "tool" id = "pencil"> 
+        <div class = "tool" id = "pencil" title = "Pencil"> 
             <img src="assets/toolbar/pencil.svg" draggable = "false">
         </div>
-        <div class = "tool" id = "fill">
+        <div class = "tool" id = "rect" title = "Rectangle">
+            <img src="assets/toolbar/rectangle.svg" draggable = "false">
+        </div>
+        <div class = "tool" id = "triangle" title = "Triangle">
+            <img src="assets/toolbar/triangle.svg" draggable = "false">
+        </div>
+        <div class = "tool" id = "circle" title = "Circle">
+            <img src="assets/toolbar/circle.svg" draggable = "false">
+        </div>
+        <div class = "tool" id = "fill" title = "Fill">
             <img src="assets/toolbar/bucket.svg" draggable = "false">
         </div>
-        <div class = "tool">
-            <img src="assets/toolbar/shape.svg" draggable = "false">
+        <div class = "tool" id = "spray" title = "Spray">
+            <img src="assets/toolbar/spray.svg" draggable = "false">
         </div>
     </div>
     <ul id = "figure_ctx_menu">
@@ -38,6 +49,7 @@
             <label for="mode">Drawing mode:</label>
             <select name="mode" size="1">
                 <option value="pencil">Pencil</option>
+                <option value="spray">Spray</option>
                 <option value="line">Line</option>
                 <option value="rect">Rectangle</option>
                 <option value="triangle">Triangle</option>
@@ -67,19 +79,18 @@
             <input type="color" name="c-color">
         </p>
     </form>
-    </div>
     <script>
         let activeTool = document.getElementById('pencil')
         activeTool.style.border = '3px solid black'
-        let mode = document.forms[0]['mode']
+        let curMode = document.forms[0]['mode']
         let pencilWidth = document.forms[0]['p-width']
         let pencilOpacity = document.forms[0]['p-opacity']
         let fillColor = document.forms[0]['f-color']
         let strokeColor = document.forms[0]['s-color']
         let canvasColor = document.forms[0]['c-color']
-        mode.addEventListener('input', (event) => {
+        curMode.addEventListener('input', (event) => {
             let tool = document.getElementById(event.target.value)
-            tool.style.border = '3px solid black'
+            if(tool) tool.style.border = '3px solid black'
             activeTool.style.border = ''
             activeTool = tool
         })
@@ -97,6 +108,11 @@
         })
         canvasColor.addEventListener('input', (event) => {
             document.getElementById('canvas').style.backgroundColor = event.target.value
+            ctx.clearRect(0, 0, canv.width, canv.height)
+            ctx.fillStyle = canvasColor.value
+            ctx.fillRect(0, 0, canv.width, canv.height)
+            drawFigures(figures)
+            ctx.fillStyle = fillColor.value
         })
         let tools = document.getElementsByClassName('tool')
         for(let tool of tools){
@@ -125,6 +141,36 @@
                 }
             }
         })
+        window.onload = () => {
+            if(!localStorage.canvasColor){
+                ctx.fillStyle = 'white'
+            }
+            else {
+                ctx.fillStyle = localStorage.canvasColor
+                canvasColor.value = localStorage.canvasColor
+            }
+            ctx.fillRect(0, 0, canv.width, canv.height)
+            if(localStorage.fillStyle){
+                fillColor.value = localStorage.fillStyle
+                ctx.fillStyle = localStorage.fillStyle
+            }
+            if(localStorage.figures) {
+                let storeFigures = JSON.parse(localStorage.figures)
+                drawFigures(storeFigures)
+                for(let figure of storeFigures){
+                    figures.push(figure)
+                }
+            }
+            if(localStorage.strokeStyle) {
+                strokeColor.value = localStorage.strokeStyle
+            }
+        }
+        window.onunload = () => {
+            localStorage.figures = JSON.stringify(figures)
+            localStorage.fillStyle = fillColor.value
+            localStorage.strokeStyle = strokeColor.value
+            localStorage.canvasColor = canvasColor.value
+        }
     </script>
     <script src = "scripts/canvas.js"></script>
 </body>

@@ -31,6 +31,9 @@ window.onkeypress = (event) => {
     }
     else if(keyCode == 'C'){
         ctx.clearRect(0, 0, canv.width, canv.height)
+        ctx.fillStyle = canvasColor.value
+        ctx.fillRect(0, 0, canv.width, canv.height)
+        ctx.fillStyle = fillColor.value
         figures.length = 0 
     }
     else if(keyCode == 'G'){
@@ -66,23 +69,23 @@ ctxMenu.addEventListener('click', (event) => {
 document.getElementById('dup_option').addEventListener('click', () => {
     if(ctxFigure.type == 'rect'){
         let clonedRect = clone(ctxFigure)
-        clonedRect.points[0][0] += 10
-        clonedRect.points[0][1] += 10
+        clonedRect.points[0][0] += 20
+        clonedRect.points[0][1] += 20
         drawRectangle(clonedRect.points[0], ctxFigure.width, ctxFigure.height, ctxFigure.fillStyle, ctxFigure.strokeStyle)
         figures.push(clonedRect)
     }
     else if(ctxFigure.type == 'circle'){
         let clonedCircle = clone(ctxFigure)
-        clonedCircle.centre[0] += 10
-        clonedCircle.centre[1] += 10
+        clonedCircle.centre[0] += 20
+        clonedCircle.centre[1] += 20
         drawCircle(clonedCircle.centre, ctxFigure.radius, ctxFigure.fillStyle, ctxFigure.strokeStyle)
         figures.push(clonedCircle)
     }
     else if(ctxFigure.type == 'triangle'){
         let clonedTriangle = clone(ctxFigure)
-        clonedTriangle.topPoint[0] += 10
-        clonedTriangle.topPoint[1] += 10
-        drawTriangle(clonedTriangle.topPoint, ctxFigure.width, ctxFigure.height, ctxFigure.fillStyle, ctxFigure.strokeStyle)
+        clonedTriangle.topPoint[0] += 20
+        clonedTriangle.topPoint[1] += 20
+        drawTriangle(clonedTriangle.topPoint, ctxFigure.topFlag, ctxFigure.width, ctxFigure.height, ctxFigure.fillStyle, ctxFigure.strokeStyle)
         figures.push(clonedTriangle)
     }
     ctxFigure = null
@@ -100,10 +103,6 @@ document.getElementById('del_option').addEventListener('click', () => {
     ctxFigure = null
     ctxMenu.style.display = ''
 })
-/*let canvas = new fabric.Canvas('canvas')
-canvas.on('mouse:down', customMouseDown)
-canvas.on('mouse:move', customMouseMove)
-canvas.on('mouse:up', customMouseUp)*/
 canv.onmousedown = customMouseDown
 canv.onmousemove = customMouseMove
 canv.onmouseup = customMouseUp
@@ -112,7 +111,7 @@ document.getElementById('clearBtn').onclick = () => {
     figures.length = 0 
 }
 const ctx = canv.getContext('2d')
-ctx.lineCap = 'round'
+ctx.lineJoin = ctx.lineCap = 'round'
 function customMouseDown(event){
     if(event.button == 2) return
     ctxMenu.style.display = ''
@@ -121,6 +120,7 @@ function customMouseDown(event){
     let mode = document.forms[0].mode.value
     if(mode == 'fill') return
     mouseDown = true
+    if(mode == 'spray') return
     points.push([x0, y0])
     if(mode == 'move'){
         draggingFigure = locateFigure([x0, y0])
@@ -143,6 +143,15 @@ function customMouseMove(event){
         ctx.stroke()
         ctx.beginPath()
         ctx.moveTo(x1, y1)
+    }
+    else if(mouseDown && mode == 'spray'){
+        for (let i = 50; i--; ) {
+            let radius = 20
+            let x2 = x1 + randomInt(-radius, radius)
+            let y2 = y1 + randomInt(-radius, radius)
+            ctx.fillRect(x2, y2, 1, 1)
+            points.push([x2, y2])
+        }
     }
     else if(mouseDown && mode == 'rect'){
         let [x0, y0] = points[0]
@@ -201,6 +210,7 @@ function customMouseMove(event){
         figures.push(figure)
     }
     else if(mouseDown && mode == 'move'){
+        if(!draggingFigure) return
         let [x0, y0] = points[0]
         let dx = x1 - x0
         let dy = y1 - y0
@@ -215,6 +225,12 @@ function customMouseMove(event){
         else if(draggingFigure.type == 'circle'){
             draggingFigure.centre[0] += dx
             draggingFigure.centre[1] += dy
+        }
+        if(draggingFigure.type == 'pencil'){
+            for(let point of draggingFigure.points){
+                point[0] += dx
+                point[1] += dy
+            }
         }
         ctx.clearRect(0, 0, canv.width, canv.height)
         drawFigures(figures)
@@ -273,16 +289,19 @@ function customMouseUp(event){
         draggingFigure = null
         return
     }
-    else {
+    else if(mode == 'fill'){
         let locatedFigure = locateFigure([x1, y1])
         fillFigure(locatedFigure)
         locatedFigure.fillStyle = ctx.fillStyle
         return
     }
-    points.push([x1, y1])
     let figure = {}
+    if(mode != 'spray') {
+        points.push([x1, y1])
+        figure.strokeStyle = ctx.strokeStyle
+    }
+    else figure.fillStyle = ctx.fillStyle
     figure.type = mode
-    figure.strokeStyle = ctx.strokeStyle
     if(figure.type != 'circle' && figure.type != 'triangle') figure.points = clone(points)
     if(mode == 'rect') {
         figure.width = Math.floor(x1-points[0][0])
@@ -301,6 +320,32 @@ function customMouseUp(event){
         if(y1 >= points[0][1]) figure.topFlag = true 
         else figure.topFlag = false
         figure.fillStyle = ctx.fillStyle
+    }
+    else if(mode == 'pencil'){
+        let minX = figure.points[0][0]
+        let minY = figure.points[0][1]
+        let maxX = figure.points[0][0]
+        let maxY = figure.points[0][1]
+        for(let point of figure.points){
+            if(point[0] < minX) minX = point[0]
+            if(point[1] < minY) minY = point[1]
+            if(point[0] > maxX) maxX = point[0]
+            if(point[1] > maxY) maxY = point[1]
+        }
+        figure.topPoint = [minX, minY]
+        figure.width =  maxX - minX
+        figure.height = maxY - minY
+        figure.inOutline = (point) => {
+            let [x0, y0] = point
+            return (x0 <= figure.topPoint[0] + figure.width
+                && x0 >= figure.topPoint[0]
+                && y0 <= figure.topPoint[1] + figure.height
+                && y0 >= figure.topPoint[1]
+            ) 
+        }
+        figure.drawOutline = () => {
+            ctx.strokeRect(figure.topPoint[0], figure.topPoint[1], figure.width, figure.height)
+        }
     }
     figures.push(figure)
     points.length = 0 
@@ -353,6 +398,9 @@ function drawCircle(centre, radius, fillColor, strokeColor){
     ctx.strokeStyle = document.forms[0]['s-color'].value
 }
 function drawFigures(figures){
+    ctx.fillStyle = canvasColor.value
+    ctx.fillRect(0, 0, canv.width, canv.height)
+    ctx.fillStyle = fillColor.value
     for(let figure of figures){
         if(figure.type == 'rect'){
             drawRectangle(figure.points[0], figure.width, figure.height, figure.fillStyle, figure.strokeStyle)
@@ -362,6 +410,13 @@ function drawFigures(figures){
         }
         else if(figure.type == 'circle'){
             drawCircle(figure.centre, figure.radius, figure.fillStyle, figure.strokeStyle)
+        }
+        else if(figure.type == 'spray'){
+            for(let point of figure.points){
+                ctx.fillStyle = figure.fillStyle
+                ctx.fillRect(...point, 1, 1)
+                ctx.fillStyle = document.forms[0]['f-color'].value
+            }
         }
         else if(figure.type == 'pencil' || figure.type == 'line'){
             ctx.strokeStyle = figure.strokeStyle
@@ -385,7 +440,8 @@ function drawFigures(figures){
 }
 function locateFigure(point){
     let [x0, y0] = point
-    for(let figure of figures){
+    for(let i = figures.length - 1;i >= 0;i--){
+        let figure = figures[i]
         if(figure.type == 'rect'){
             if(x0 <= figure.points[0][0] + figure.width
             && x0 >= figure.points[0][0]
@@ -413,11 +469,10 @@ function locateFigure(point){
             let A3 = calcArea([x1, y1], [x2, y2], [x0, y0])
             if(A == A1 + A2 + A3) return figure
         }
-        else if(figure.type == 'line' || figure.type == 'pencil'){
-            for(let point of figure.points){
-                if(point[0] == x0 && point[1] == y0) {
-                    return figure
-                }
+        else if(figure.type == 'pencil'){
+            if(figure.inOutline(point)) {
+                figure.drawOutline()
+                return figure
             }
         }
     }
@@ -457,6 +512,9 @@ function calcArea(p1, p2, p3){
     let [x2, y2] = p2
     let [x3, y3] = p3
     return Math.abs((x1*(y2-y3) + x2*(y3-y1)+ x3*(y1-y2))/2.0)
+}
+function randomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min
 }
 function clone(obj){
     return JSON.parse(JSON.stringify(obj))
