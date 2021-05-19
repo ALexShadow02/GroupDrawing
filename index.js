@@ -2,52 +2,103 @@ const http = require('http')
 const express = require('express')
 const WebSocket = require('ws')
 const session = require('express-session')
-const mongoose = require('mongoose')
-const path = require('path')
+const passport = require('passport')
+const flash = require('connect-flash')
+const {User, connection} = require('./src/models/User')
+const hbs = require('hbs')
 const tools = require('./src/scripts/tools')
+const genImage = require('./src/scripts/imgGenerator')
 const MongoStore = require('connect-mongo')
+const bcrypt = require('bcryptjs')
+const uuid = require('uuid')
 
 //-----Servers initialization------
 const app = express()
 const bodyParser = require('body-parser')
 require('dotenv').config()
+require('./config/auth')(passport)
 const morgan = require('morgan')
 const winston = require('./config/winston')
-const Jimp = require('jimp')
 const PORT = process.env.PORT || 3000
-const connection = mongoose.createConnection(process.env.DB_STRING,
-{useUnifiedTopology : true, useNewUrlParser : true})
-
 //-----Midlleware-----
+app.set('view engine', 'hbs')
+app.set('views', './src/views')
+hbs.registerPartials(__dirname + '/src/views/partials')
+hbs.registerHelper('prettyDate', (date) => {
+    return date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear()
+})
+hbs.registerHelper('drawPath', (url) => {
+    return '/d/' + url
+})
+hbs.registerHelper('upPath', (index) => {
+    return '/d/upload/' + index
+})
+hbs.registerHelper('dPath', (index) => {
+    return '/d/dload/' + index
+})
 app.use(express.json())
 app.use(express.urlencoded())
 app.use(morgan('combined', {stream : winston.stream}))
 app.use(session({
-    secret : 'secret_code',
+    secret : 'secret',
     cookie : {maxAge : 1000 * 60 * 60 * 24 * 365},
     saveUninitialized : true,
     store : MongoStore.create(connection)
 }))
-
-app.use('/assets', express.static(__dirname + '/src/assets'))
+app.use(passport.initialize())
+app.use(passport.session())
+app.use(flash())
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash('success_msg')
+    res.locals.error_msg = req.flash('error_msg')
+    res.locals.error = req.flash('error')
+    next()
+})
+app.use('/assets', (req, res, next) => {
+    if(req.url == '/image.png'){
+        User.updateOne({email : req.user.email}, {savedDrawings : req.user.savedDrawings + 1}, (err) => {
+            if(err) console.log(err.message)
+        })
+    }
+    next()
+}, express.static(__dirname + '/src/assets'))
 app.use('/styles', express.static(__dirname + '/src/styles'))
 app.use('/scripts', express.static(__dirname + '/src/scripts'))
 
-app.get('/login', (req, res) => {
-    res.sendFile(__dirname + '/src/login.html')
-    res.json()
-})
-app.post('/login', (req, res) => {
-    let {username : name, pass} = req.body
-    res.redirect('/')
-})
+app.use('/register', require('./src/routes/register'))
+app.use('/login', require('./src/routes/login'))
 
-app.use('/studio', (req, res) => {
-    res.sendFile(__dirname + '/src/studio.html')
+app.get('/logout', (req, res) => {
+    req.logout()
+    req.flash('success_msg', 'You are logged out')
+    res.redirect('/login')
 })
-
+app.use('/d', require('./src/routes/drawings'))
+/*app.get('/d', (req, res) => {
+    res.render('drawings.hbs', {drawings : req.user.rooms})
+})
+app.get('/d/c', (req, res) => {
+    if(req.isAuthenticated()){
+        let uri = uuid.v4()
+        User.updateOne({email : req.user.email}, {$push : {rooms : {uri : uri}}}, (err) => {
+            if(err) console.log(err.message)
+        })
+        res.redirect('/d/' + uri)
+    }
+    else res.end('Login first')
+})
+app.get('/d/:id' + room, (req, res) => {
+    res.send('Congratulations, the room is found')
+})*/
+/*app.use('/studio', (req, res) => {
+    if(req.isAuthenticated()){
+        res.sendFile(__dirname + '/src/studio.html')
+        console.log(`User ${req.user.email} entered the studio`)
+    }
+    else res.end('Login first')
+})*/
 app.use('/', (req, res) => {
-    if(req.url != '/favicon.ico') {
+    if(req.url != '/favicon.ico'){
         if(!req.session.visitCounter) req.session.visitCounter = 1
         else req.session.visitCounter++
         res.sendFile(__dirname + '/src/index.html')
@@ -56,36 +107,23 @@ app.use('/', (req, res) => {
 const server = http.createServer(app)
 const wss = new WebSocket.Server({server})
 wss.on('connection', (ws) => {
-    ws.on('message', (m) => {
-        if(m == 'gen-img') {
+    wss.broadcast(`c:${wss.clients.size}`)
+    ws.on('message', (mes) => {
+        if(mes == 'gen-img') {
             console.log('Got request on generating an image')
             ws.send('send-img')
         }
         else {
-            //-----Parsing pixels from transferred ArrayBuffer-----
-            let pixels = []
-            for(let i = 1;i <= m.length;i += 4) {
-                pixels.push(Jimp.rgbaToInt(m[i-1], m[i], m[i+1], m[i+2]))
-            }
-
-            //-----Setting pixels to created .png image-----
-            let counter = 0
-            new Jimp(800, 600, (err, image) => {
-                if (err) throw err
-                for(let y = 0;y < 600;y++){
-                    for(let x = 0;x < 800;x++){
-                        image.setPixelColor(pixels[counter], x, y)
-                        counter++
-                    }
-                }
-                image.write('src/assets/image.png', (err) => {
-                  if (err) throw err
-                  ws.send('save') //command for client to begin downloading
-                })
-            })
+            genImage(mes, 'src/assets/image.png')
+            ws.send('save')
         }
     })
 })
+wss.broadcast = (msg) => {
+    wss.clients.forEach(function each(client) {
+        client.send(msg)
+    })
+ }
 server.listen(PORT, () => {
     console.log(`Listening started on port ${PORT}...`)
 })

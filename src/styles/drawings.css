@@ -1,0 +1,72 @@
+#container{
+    top: 0;
+    left: 0;
+    width: 80%;
+    min-height: 80%;
+    margin: 6% auto;
+    background-color: yellow;
+    border-radius: 15px 50px;
+}
+#draws-title{
+    width:100%;
+    background-color: pink;
+    position: relative;
+    padding-top: 1%;
+    padding-left: 1%;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 50px;
+    border-bottom: 1px solid black;
+}
+.drawing-card{
+    display: inline-flex;
+    flex-direction: column;
+    width: 17%;
+    height: 250px;
+    background-color: white;
+    margin: 3% 3.75%;
+    box-shadow: 2px 2px 15px -3px #000000;
+    border-radius: 5%;
+    cursor: pointer;
+    color: black;
+}
+.card-info{
+    width: 100%;
+    height: 30%;
+    margin-top: auto;
+    padding-top: 5px;
+    padding-left: 8px;
+    background-color: yellowgreen;
+    font-size: 14px;
+    border-top: 2px solid black;
+    border-bottom-left-radius: 5%;
+    border-bottom-right-radius: 5%;
+    text-decoration: none;
+}
+#drawing_ctx_menu{
+    margin: 0px;
+    padding: 0px;
+    width: 100px;
+    list-style: none;
+    background-color: white;
+    position: fixed;
+    display: none;
+    border: 2px solid black;
+}   
+#drawing_ctx_menu li{
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+}
+#create_btn{
+    position: fixed;
+    right: 4%;
+    bottom: 5%;
+    height: 80px;
+    width: 80px;
+    background-color: white;
+    border-radius: 50%;
+    border: 1px solid white;
+}
+#create_btn:hover{
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);;
+}

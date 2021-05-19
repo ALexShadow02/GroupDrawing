@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawing studio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    <link rel = "stylesheet" href = "../styles/genStyles.css">
+    <link rel = "stylesheet" href = "../styles/studio.css">
+    <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #adff2f">
+        <a class="navbar-brand" href="">
+            <img src = "../assets/Logo.jpg" alt = "Logo">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-item nav-link" href="/d">Drawings</a>
+            <a class="nav-item nav-link" id = "Settings" href="">Settings</a>
+            <a class="nav-item nav-link" href="">Info</a>
+          </div>
+        </div>
+    </nav>
+    <div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
+    <div id="toolbar">
+        <div class = "tool" id = "move" title = "Move">
+            <img src="../assets/toolbar/pointer-on.svg" draggable = "false">
+        </div>
+        <div class = "tool" id = "pencil" title = "Pencil"> 
+            <img src="../assets/toolbar/pencil.svg" draggable = "false">
+        </div>
+        <div class = "tool" id = "rect" title = "Rectangle">
+            <img src="../assets/toolbar/rectangle.svg" draggable = "false">
+        </div>
+        <div class = "tool" id = "triangle" title = "Triangle">
+            <img src="../assets/toolbar/triangle.svg" draggable = "false">
+        </div>
+        <div class = "tool" id = "circle" title = "Circle">
+            <img src="../assets/toolbar/circle.svg" draggable = "false">
+        </div>
+        <div class = "tool" id = "fill" title = "Fill">
+            <img src="../assets/toolbar/bucket.svg" draggable = "false">
+        </div>
+        <div class = "tool" id = "spray" title = "Spray">
+            <img src="../assets/toolbar/spray.svg" draggable = "false">
+        </div>
+        <div class = "tool" id = "undo" title = "Undo">
+            <img src="../assets/toolbar/undo.svg" draggable = "false">
+        </div>
+    </div>
+    <ul id = "figure_ctx_menu">
+        <li id = "del_option">Delete</li>
+        <li id = "dup_option">Duplicate</li>
+    </ul>
+    <div id="canvas-container">
+        <canvas id = "canvas" width = "800" height = "600"></canvas>
+    </div>
+    <form name="drawingOptions">
+        <p>
+            <label for="p-width">Pencil width:</label>
+            <input type="range" name="p-width" min="1" max="10" step="1">
+        </p>
+        <p>
+            <label for="p-opacity">Pencil opacity:</label>
+            <input type="range" name="p-opacity" min="0" max="1" step="0.1">
+        </p>
+        <p>
+            <label for="f-color">Fill color:</label>
+            <input type="color" name="f-color">
+        </p>
+        <p>
+            <label for="s-color">Stroke color:</label>
+            <input type="color" name="s-color">
+        </p>
+        <p>
+            <label for="s-color">Canvas color:</label>
+            <input type="color" name="c-color">
+        </p>
+    </form>
+    <script>
+        let activeTool = document.getElementById('pencil')
+        activeTool.style.border = '3px solid black'
+        let curMode = 'pencil'
+        let fillColor = document.forms[0]['f-color']
+        let strokeColor = document.forms[0]['s-color']
+        let canvasColor = document.forms[0]['c-color']
+        let pencilWidth = document.forms[0]['p-width']
+        let pencilOpacity = document.forms[0]['p-opacity']
+        pencilWidth.addEventListener('input', (event) => {
+            ctx.lineWidth = event.target.value
+        })
+        pencilOpacity.addEventListener('input', (event) => {
+            ctx.globalAlpha = event.target.value
+        })
+        fillColor.addEventListener('input', (event) => {
+            ctx.fillStyle = event.target.value
+        })
+        strokeColor.addEventListener('input', (event) => {
+            ctx.strokeStyle = event.target.value
+        })
+        canvasColor.addEventListener('input', (event) => {
+            document.getElementById('canvas').style.backgroundColor = event.target.value
+            ctx.clearRect(0, 0, canv.width, canv.height)
+            ctx.fillStyle = canvasColor.value
+            ctx.fillRect(0, 0, canv.width, canv.height)
+            drawFigures(figures)
+            ctx.fillStyle = fillColor.value
+        })
+        let tools = document.getElementsByClassName('tool')
+        for(let tool of tools){
+            tool.addEventListener('click',() => {
+                activeTool.style.border = ''
+                activeTool = tool
+                tool.style.border = '3px solid black'
+                curMode = activeTool.id
+            })
+        }
+        window.addEventListener('keypress',(event) => {
+            let keyCode = event.code.slice(event.code.length-1, event.code.length)
+            if(keyCode == 'R'){
+                const worker = Tesseract.createWorker({
+                logger: m => console.log(m)
+                });
+                //Tesseract.setLogging(true);
+                work();
+                async function work() {
+                    await worker.load();
+                    await worker.loadLanguage('rus');
+                    await worker.initialize('rus');
+                    let result = await worker.recognize(document.getElementById('canvas'));
+                    alert(result.data.text);
+                    await worker.terminate();
+                }
+            }
+        })
+        window.onload = () => {
+            fetch("{{dPath roomNumber}}")
+            .then((res) => res.json())
+            .then((env) => {
+                fillColor.value = env.fillColor
+                strokeColor.value = env.strokeColor
+                canvasColor.value = env.canvasColor
+                ctx.fillStyle = env.canvasColor
+                ctx.fillRect(0, 0, canv.width, canv.height)
+                ctx.fillStyle = env.fillColor
+                ctx.strokeStyle = env.strokeColor
+                drawFigures(env.figures)
+                for(let figure of env.figures){
+                    figures.push(figure)
+                }
+            })
+        }
+        window.onunload = () => {
+            let env = {
+                fillColor : fillColor.value,
+                strokeColor : strokeColor.value,
+                canvasColor : canvasColor.value,
+                figures
+            }
+            fetch("{{upPath roomNumber}}",{
+                method : "POST",
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8'
+                },
+                body: JSON.stringify(env)
+            })
+        }
+    </script>
+    <script src = "../scripts/clientSocket.js"></script>
+    <script src = "../scripts/canvas.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
+</body>
+</html>

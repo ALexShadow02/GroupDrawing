@@ -1,29 +1,10 @@
 let mouseDown = false
 let draggingFigure = null
 let ctxFigure = null
-let fabricMode = false
 window.onkeypress = (event) => {
     let keyCode = event.code.slice(event.code.length-1, event.code.length)
     if(keyCode == 'S') {
-        const socket = new WebSocket('ws://localhost:3000')
-        socket.binaryType = 'arraybuffer'
-        socket.onopen = () => {
-            console.log('Connnection is set')
-            socket.send('gen-img')
-        }
-        socket.onmessage = (m) => {
-            if(m.data == 'send-img') {
-                let imageDataArr = ctx.getImageData(0, 0, canv.width, canv.height).data
-                let byteArr = new Uint8Array(imageDataArr.length)
-                for (let i = 0; i < imageDataArr.length; i++) {
-                    byteArr[i] = imageDataArr[i]
-                }
-                socket.send(byteArr)
-            }
-            else if(m.data == 'save'){
-                download()
-            }
-        }
+        socket.send('gen-img')
     }
     else if(keyCode == 'F'){
         if(figures.length == 1) alert('There is only one figure on the canvas')  
@@ -43,13 +24,18 @@ window.onkeypress = (event) => {
         alert(`The widht of the line is ${ctx.lineWidth}`)
     }
     else if(keyCode == 'U'){
+        if(changes.length > 0){
+            let lastChange = changes.pop()
+            lastChange.figure.fillStyle = lastChange.color
+        }
+        else figures.pop()
         ctx.clearRect(0, 0, canv.width, canv.height)
-        figures.pop()
         drawFigures(figures)
     } 
 }
 const points = []
 const figures = []
+const changes = []
 const canv = document.getElementById('canvas')
 const canvPos = canv.getBoundingClientRect()
 const ctxMenu = document.getElementById('figure_ctx_menu')
@@ -65,6 +51,9 @@ canv.addEventListener('contextmenu', (event) => {
 })
 ctxMenu.addEventListener('click', (event) => {
     event.stopPropagation()
+})
+window.addEventListener('scroll', () => {
+    ctxMenu.style.display = ''
 })
 document.getElementById('dup_option').addEventListener('click', () => {
     if(ctxFigure.type == 'rect'){
@@ -85,7 +74,7 @@ document.getElementById('dup_option').addEventListener('click', () => {
         let clonedTriangle = clone(ctxFigure)
         clonedTriangle.topPoint[0] += 20
         clonedTriangle.topPoint[1] += 20
-        drawTriangle(clonedTriangle.topPoint, ctxFigure.topFlag, ctxFigure.width, ctxFigure.height, ctxFigure.fillStyle, ctxFigure.strokeStyle)
+        drawTriangle(clonedTriagle.topPoint, ctxFigure.topFlag, ctxFigure.width, ctxFigure.height, ctxFigure.fillStyle, ctxFigure.strokeStyle)
         figures.push(clonedTriangle)
     }
     ctxFigure = null
@@ -106,10 +95,6 @@ document.getElementById('del_option').addEventListener('click', () => {
 canv.onmousedown = customMouseDown
 canv.onmousemove = customMouseMove
 canv.onmouseup = customMouseUp
-document.getElementById('clearBtn').onclick = () => {
-    ctx.clearRect(0, 0, canv.width, canv.height)
-    figures.length = 0 
-}
 const ctx = canv.getContext('2d')
 ctx.lineJoin = ctx.lineCap = 'round'
 function customMouseDown(event){
@@ -117,7 +102,7 @@ function customMouseDown(event){
     ctxMenu.style.display = ''
     let x0 = event.clientX - canvPos.left
     let y0 = event.clientY - canvPos.top
-    let mode = document.forms[0].mode.value
+    let mode = curMode
     if(mode == 'fill') return
     mouseDown = true
     if(mode == 'spray') return
@@ -135,7 +120,7 @@ function customMouseMove(event){
     if(event.button == 2) return
     let x1 = event.clientX - canvPos.left
     let y1 = event.clientY - canvPos.top
-    let mode = document.forms[0].elements[0].value
+    let mode = curMode
     if(mouseDown && mode == 'pencil'){
         points.push([x1, y1])
         ctx.lineTo(x1, y1)
@@ -240,7 +225,7 @@ function customMouseMove(event){
 function customMouseUp(event){
     if(event.button == 2) return
     mouseDown = false
-    let mode = document.forms[0].mode.value
+    let mode = curMode
     let x1 = event.clientX - canvPos.left
     let y1 = event.clientY - canvPos.top
     if(mode == 'rect'){
@@ -291,6 +276,7 @@ function customMouseUp(event){
     }
     else if(mode == 'fill'){
         let locatedFigure = locateFigure([x1, y1])
+        changes.push({figure : locatedFigure, color : locatedFigure.fillStyle})
         fillFigure(locatedFigure)
         locatedFigure.fillStyle = ctx.fillStyle
         return
