@@ -74,29 +74,6 @@ app.get('/logout', (req, res) => {
     res.redirect('/login')
 })
 app.use('/d', require('./src/routes/drawings'))
-/*app.get('/d', (req, res) => {
-    res.render('drawings.hbs', {drawings : req.user.rooms})
-})
-app.get('/d/c', (req, res) => {
-    if(req.isAuthenticated()){
-        let uri = uuid.v4()
-        User.updateOne({email : req.user.email}, {$push : {rooms : {uri : uri}}}, (err) => {
-            if(err) console.log(err.message)
-        })
-        res.redirect('/d/' + uri)
-    }
-    else res.end('Login first')
-})
-app.get('/d/:id' + room, (req, res) => {
-    res.send('Congratulations, the room is found')
-})*/
-/*app.use('/studio', (req, res) => {
-    if(req.isAuthenticated()){
-        res.sendFile(__dirname + '/src/studio.html')
-        console.log(`User ${req.user.email} entered the studio`)
-    }
-    else res.end('Login first')
-})*/
 app.use('/', (req, res) => {
     if(req.url != '/favicon.ico'){
         if(!req.session.visitCounter) req.session.visitCounter = 1
