@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <link rel = "stylesheet" href = "../styles/genStyles.css">
+    <link rel = "stylesheet" href = "../styles/drawings.css">
+    <title>Entry</title>
+    <style>
+        #drawings{
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 50vh;
+            margin: 6% auto;
+            padding: 1% 2%;
+            background-color: yellow;
+            border-radius: 15px 50px;
+        }
+        #start{
+            background-color: orange;
+            position: absolute;
+        }
+        #sett{
+            text-align: center;
+            font-size: 45px;
+        }
+        #setForms{
+            margin-top: 6%;
+            font-size: 25px;
+            display: flex;
+            flex-direction: row;
+            width: auto;
+            justify-content: space-around;
+
+        }
+        input{
+            display: block;
+            text-align: center;
+            margin-top: 2%;
+            margin-bottom: 2%;
+            height: 19%;
+            width: 100%;
+            border: 2px solid black;
+            border-radius: 10px;
+            border            
+        }
+
+        input:focus{
+            outline: none;
+        }
+
+        button{
+            width: 50%;
+            height: 20%;
+            background-color: lime;
+            border: 0;
+            border-radius: 10px;
+        }
+
+        form{
+            margin-top: 1%;
+            display: inline-block;
+            text-align: center;
+        }
+
+        #errormsg{
+            position: relative;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 0.5%;
+            border-radius: 15px;
+            border: 0;
+        }
+
+        #error{
+            margin-top: 25%;
+            color: red;
+        }
+        #close{
+            position: absolute;
+            color: black;
+            text-align: right;
+            top: 1%;
+            right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg"></div>
+    <div class="bg bg2"></div>
+    <div class="bg bg3"></div>
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #adff2f">
+        <img src = "assets/Logo.jpg" alt = "Logo">
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-item nav-link active" href="/">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link" href="d">Drawings</a>
+            <a class="nav-item nav-link" id = "Settings" href="set">Settings</a>
+            <a class="nav-item nav-link" href="">Info</a>
+          </div>
+        </div>
+    </nav>
+      <div id = "drawings">
+        <div id="sett">Settings</div>
+        <div id="setForms">
+            <form method="post" action="/set/name"  id="name" onsubmit="return confirm('Do you really want to submit the form?');">
+                <label>Change your name: </label>   
+                <input required type="text" name="username" placeholder={{user}} value={{name}}>
+                <button type="submit">Submit</button>
+            </form>
+
+            {{#if error}}
+                <div id="errormsg">
+                    <div id="close" onclick="this.parentElement.remove()">❎</div>
+                    <div id="error">{{error}}</div>
+                </div>
+            {{/if}}
+
+            <form method="post" action="/set/pass" onsubmit="return confirm('Do you really want to submit the form?');">
+                <label>Change your password: </label>
+                <input required type="password" name="oldpass" placeholder="old password" value={{oldpass}}>
+                <input required type="password" name="newpass" placeholder="new password" value={{newpass}}>
+                <input required type="password" name="confpass" placeholder="confirm password" value={{confpass}}>        
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+
+      </div>       
+    <!--<div class="g-signin2" id="goog_bu  t" data-onsuccess="signIn"></div>
+    <a href="#" onclick="signOut();">Sign out</a>-->
+    <script>
+        if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href );
+        }
+
+         window.addEventListener('scroll', () => {
+            if(window.scrollY >= 50) {
+                document.getElementById('nav').style.opacity = '0.4'
+            }
+            else document.getElementById('nav').style.opacity = '0.8'
+        })
+        function signIn(googleUser) {
+            var profile = googleUser.getBasicProfile()
+            console.log('ID: ' + profile.getId())
+            console.log('Name: ' + profile.getName())
+            console.log('Image URL: ' + profile.getImageUrl())
+            console.log('Email: ' + profile.getEmail())
+        }
+        function signOut() {
+            var auth2 = gapi.auth2.getAuthInstance()
+            auth2.signOut().then(() => console.log('User signed out.'))
+        }
+    </script>
+    </body>
+  
+</html>

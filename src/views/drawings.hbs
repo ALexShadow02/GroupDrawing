@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
     <link rel = "stylesheet" href = "../styles/genStyles.css">
-     <link rel = "stylesheet" href = "../styles/drawings.css">
+    <link rel = "stylesheet" href = "../styles/drawings.css">
     <title>Drawings</title>
 </head>
 <body>
@@ -23,7 +22,7 @@
           <div class="navbar-nav">
             <a class="nav-item nav-link" href="/">Home</a>
             <a class="nav-item nav-link active" href="d">Drawings <span class="sr-only">(current)</span></a>
-            <a class="nav-item nav-link" id = "Settings" href="">Settings</a>
+            <a class="nav-item nav-link" id = "Settings" href="set">Settings</a>
             <a class="nav-item nav-link" href="">Info</a>
           </div>
         </div>
@@ -42,7 +41,7 @@
             </a>
         {{/each}}
         {{else}}
-            <h1>You have no drawings yet</h1>
+            <h1>You have no drawings yet</h1>   
             <h5>Click '+' in the bottom right corner to create a new one</h5>
             <script>
                 document.getElementById('container').style.backgroundColor = "transparent"
