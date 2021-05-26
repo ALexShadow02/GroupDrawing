@@ -42,7 +42,7 @@ animation-duration:5s;
 .tool {
     animation: tool-color 15s infinite;
     display: inline-block;
-    background-color: pink;
+    background-color: #ffc0cb;
     border-radius: 30%;
     -webkit-box-shadow: 0.1rem 0.1rem 0 rgb(0 0 0 / 25%);
     box-shadow: 0.1rem 0.1rem 0 rgb(0 0 0 / 25%);
@@ -78,15 +78,67 @@ animation-duration:5s;
         border-radius: 50%;
     }
 }
-#canvas-container {
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ffc0cb; 
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #fa94a5;
+}
+#room_name{
+    display: block;
+    height: 10%;
+    background-color: #fd6982;
     width: 100%;
-    text-align:center;
+    text-align: center;
+}
+#canvas_container {
+    width: 100%;
+    text-align: center;
 }
 #canvas{
     display: inline;
     border: 5px solid black;
     margin-top: 60px;
     border-radius: 1%;
+}
+#event_bar{
+    position: absolute;
+    padding: 1%;
+    /*background-color: #53850a;*/
+    background-color: none;
+    top: 20%;
+    right: 2rem;
+    min-height: auto;
+    max-height: 80%;
+    overflow: auto;
+    border: 2px solid black;
+    width: 15%;
+}
+#event_title{
+    display: flex;
+    justify-content: space-between;
+    padding: 2%;
+}
+#event_title button{
+    background-color: #ffc0cb;
+}
+.event{
+    position: relative;
+    min-height: auto;
+    background-color: #adff2f;
+    padding: 5%;
+    padding-top: 10%;
+    margin-top: 2%;
+    font-size: 14px;
+    border: 2px solid black;
 }
 #clearBtn{
     position: fixed;

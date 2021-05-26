@@ -37,7 +37,11 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+<<<<<<< HEAD
     "flash": "^1.1.0",
+=======
+    "express-ws": "^4.0.0",
+>>>>>>> d2a449eea1a4422ceffdddc841b14aa40fb70a8c
     "hbs": "^4.1.2",
     "jimp": "^0.16.1",
     "mongoose": "^5.12.3",

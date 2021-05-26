@@ -1,3 +1,56 @@
+let activeTool = document.getElementById('pencil')
+activeTool.style.border = '3px solid black'
+let curMode = 'pencil'
+let fillColor = document.forms[0]['f-color']
+let strokeColor = document.forms[0]['s-color']
+let canvasColor = document.forms[0]['c-color']
+let pencilWidth = document.forms[0]['p-width']
+let pencilOpacity = document.forms[0]['p-opacity']
+pencilWidth.addEventListener('input', (event) => {
+    ctx.lineWidth = event.target.value
+})
+pencilOpacity.addEventListener('input', (event) => {
+    ctx.globalAlpha = event.target.value
+})
+fillColor.addEventListener('input', (event) => {
+    ctx.fillStyle = event.target.value
+})
+strokeColor.addEventListener('input', (event) => {
+    ctx.strokeStyle = event.target.value
+})
+canvasColor.addEventListener('input', (event) => {
+    document.getElementById('canvas').style.backgroundColor = event.target.value
+    ctx.clearRect(0, 0, canv.width, canv.height)
+    ctx.fillStyle = canvasColor.value
+    ctx.fillRect(0, 0, canv.width, canv.height)
+    drawFigures(figures)
+    ctx.fillStyle = fillColor.value
+})
+let tools = document.getElementsByClassName('tool')
+for(let tool of tools){
+    tool.addEventListener('click', () => {
+        if(activeTool == tool){
+            activeTool.style.border = ''
+            activeTool = null
+            curMode = ''
+            return
+        }
+        if(activeTool) activeTool.style.border = ''
+        activeTool = tool
+        tool.style.border = '3px solid black'
+        if(tool.id == 'undo'){
+            if(changes.length > 0){
+                let lastChange = changes.pop()
+                lastChange.figure.fillStyle = lastChange.color
+            }
+            else figures.pop()
+            ctx.clearRect(0, 0, canv.width, canv.height)
+            drawFigures(figures)
+            return
+        }
+        curMode = activeTool.id
+    })
+}
 let mouseDown = false
 let draggingFigure = null
 let ctxFigure = null
@@ -16,12 +69,7 @@ window.onkeypress = (event) => {
         ctx.fillRect(0, 0, canv.width, canv.height)
         ctx.fillStyle = fillColor.value
         figures.length = 0 
-    }
-    else if(keyCode == 'G'){
-        alert(`Canv: x - ${canvPos.left};y - ${canvPos.top}`)
-    }
-    else if(keyCode == 'W'){
-        alert(`The widht of the line is ${ctx.lineWidth}`)
+        socket.send('c.c')
     }
     else if(keyCode == 'U'){
         if(changes.length > 0){
@@ -31,6 +79,7 @@ window.onkeypress = (event) => {
         else figures.pop()
         ctx.clearRect(0, 0, canv.width, canv.height)
         drawFigures(figures)
+        socket.send('c.u')
     } 
 }
 const points = []
@@ -74,8 +123,17 @@ document.getElementById('dup_option').addEventListener('click', () => {
         let clonedTriangle = clone(ctxFigure)
         clonedTriangle.topPoint[0] += 20
         clonedTriangle.topPoint[1] += 20
-        drawTriangle(clonedTriagle.topPoint, ctxFigure.topFlag, ctxFigure.width, ctxFigure.height, ctxFigure.fillStyle, ctxFigure.strokeStyle)
+        drawTriangle(clonedTriangle.topPoint, ctxFigure.topFlag, ctxFigure.width, ctxFigure.height, ctxFigure.fillStyle, ctxFigure.strokeStyle)
         figures.push(clonedTriangle)
+    }
+    else if(ctxFigure.type == 'pencil'){
+        let clonedPencil = clone(ctxFigure)
+        for(let point of clonedPencil.points){
+            point[0] += 20
+            point[1] += 20
+        }
+        /*drawPencil()
+        figures.push(clonedPencil)*/
     }
     ctxFigure = null
     ctxMenu.style.display = ''
@@ -100,8 +158,8 @@ ctx.lineJoin = ctx.lineCap = 'round'
 function customMouseDown(event){
     if(event.button == 2) return
     ctxMenu.style.display = ''
-    let x0 = event.clientX - canvPos.left
-    let y0 = event.clientY - canvPos.top
+    let x0 = event.pageX - canvPos.left
+    let y0 = event.pageY - canvPos.top
     let mode = curMode
     if(mode == 'fill') return
     mouseDown = true
@@ -111,15 +169,14 @@ function customMouseDown(event){
         draggingFigure = locateFigure([x0, y0])
         return
     }
-    console.log('Figure drawing started')
     if(mode != 'pencil' && mode != 'line') return
     ctx.beginPath()
     ctx.moveTo(x0, y0)
 }
 function customMouseMove(event){
     if(event.button == 2) return
-    let x1 = event.clientX - canvPos.left
-    let y1 = event.clientY - canvPos.top
+    let x1 = event.pageX - canvPos.left
+    let y1 = event.pageY - canvPos.top
     let mode = curMode
     if(mouseDown && mode == 'pencil'){
         points.push([x1, y1])
@@ -212,13 +269,17 @@ function customMouseMove(event){
             draggingFigure.centre[1] += dy
         }
         if(draggingFigure.type == 'pencil'){
+            draggingFigure.topPoint[0] += dx
+            draggingFigure.topPoint[1] += dy
             for(let point of draggingFigure.points){
                 point[0] += dx
                 point[1] += dy
             }
+
         }
         ctx.clearRect(0, 0, canv.width, canv.height)
         drawFigures(figures)
+        if(draggingFigure.type == 'pencil') draggingFigure.drawOutline()
         points[0] = [x1, y1]
     }
 }
@@ -226,8 +287,8 @@ function customMouseUp(event){
     if(event.button == 2) return
     mouseDown = false
     let mode = curMode
-    let x1 = event.clientX - canvPos.left
-    let y1 = event.clientY - canvPos.top
+    let x1 = event.pageX - canvPos.left
+    let y1 = event.pageY - canvPos.top
     if(mode == 'rect'){
         let [x0, y0] = points[0]
         points.pop()
@@ -270,7 +331,9 @@ function customMouseUp(event){
         ctx.stroke()
     }
     else if(mode == 'move'){
+        if(!draggingFigure) return
         points.length = 0 
+        if(draggingFigure.type == 'pencil') draggingFigure.clearOutline()
         draggingFigure = null
         return
     }
@@ -332,7 +395,12 @@ function customMouseUp(event){
         figure.drawOutline = () => {
             ctx.strokeRect(figure.topPoint[0], figure.topPoint[1], figure.width, figure.height)
         }
+        figure.clearOutline = () => {
+            ctx.clearRect(figure.topPoint[0], figure.topPoint[1], figure.width, figure.height)
+            drawFigures(figures)
+        }
     }
+    socket.send('f.d;' + JSON.stringify(figure))
     figures.push(figure)
     points.length = 0 
 }
@@ -382,6 +450,42 @@ function drawCircle(centre, radius, fillColor, strokeColor){
     ctx.fill()
     ctx.fillStyle = document.forms[0]['f-color'].value
     ctx.strokeStyle = document.forms[0]['s-color'].value
+}
+function drawFigure(figure){
+    if(figure.type == 'rect'){
+        drawRectangle(figure.points[0], figure.width, figure.height, figure.fillStyle, figure.strokeStyle)
+    }
+    else if(figure.type == 'triangle'){
+        drawTriangle(figure.topPoint, figure.topFlag, figure.width, figure.height, figure.fillStyle, figure.strokeStyle)
+    }
+    else if(figure.type == 'circle'){
+        drawCircle(figure.centre, figure.radius, figure.fillStyle, figure.strokeStyle)
+    }
+    else if(figure.type == 'spray'){
+        for(let point of figure.points){
+            ctx.fillStyle = figure.fillStyle
+            ctx.fillRect(...point, 1, 1)
+            ctx.fillStyle = document.forms[0]['f-color'].value
+        }
+    }
+    else if(figure.type == 'pencil' || figure.type == 'line'){
+        ctx.strokeStyle = figure.strokeStyle
+        ctx.beginPath()
+        ctx.moveTo(...figure.points[0])
+        if(figure.type == 'line') ctx.lineTo(...figure.points[1])
+        else {
+            for(let i = 1; i < figure.points.length; i++){
+                ctx.lineTo(...figure.points[i])
+                ctx.closePath()
+                ctx.stroke()
+                ctx.beginPath()
+                ctx.moveTo(...figure.points[i])
+            }
+            ctx.lineTo(...figure.points[figure.points.length-1])
+        }
+        ctx.closePath()
+        ctx.stroke()
+    }
 }
 function drawFigures(figures){
     ctx.fillStyle = canvasColor.value

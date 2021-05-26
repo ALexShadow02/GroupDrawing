@@ -14,6 +14,7 @@
     <div class="bg bg2"></div>
     <div class="bg bg3"></div>
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #adff2f">
+<<<<<<< HEAD
         <img src = "../assets/Logo.jpg" alt = "Logo">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -25,20 +26,64 @@
             <a class="nav-item nav-link" id = "Settings" href="set">Settings</a>
             <a class="nav-item nav-link" href="">Info</a>
           </div>
+=======
+        <a class="navbar-brand" href="">
+            <img src = "../assets/Logo.jpg" alt = "Logo" id = "logo">
+        </a>
+        <div class="container-fluid">
+            <button
+            class="navbar-toggler"
+            type="button"
+            data-mdb-toggle="collapse"
+            data-mdb-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+            >
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="d">Drawings <span class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle nav-btn" type="button" id="profile_btn" data-bs-toggle="dropdown" aria-expanded="false">
+                        Profile
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+                        <li><a class="dropdown-item" href="">{{name}}</a></li>
+                        <li><a class="dropdown-item" href="">{{email}}</a></li>
+                        <li><a class="dropdown-item" href="">Settings</a></li>
+                        <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+>>>>>>> d2a449eea1a4422ceffdddc841b14aa40fb70a8c
         </div>
     </nav>
     <div id = "container">
         {{#if rooms}}
-        <div id = "draws-title">Recent drawings:</div>
+        <div id = "draws-title">
+            <p>Recent drawings:</p>
+            <select id="sel_owner" size="1">
+                <option value="any" selected="selected">Owner: anyone</option>
+                <option value="you">Owner: you</option>
+                <option value="nyou">Owner: not you</option>
+            </select>
+        </div>
         {{#each rooms}}
-            <a href = {{drawPath this.url}}>
-                <div class = "drawing-card" number = {{@index}}>
-                    <div class = "card-info">
-                        {{this.name}}
-                        <p>Creation date:  {{prettyDate this.date}}</p>
-                    </div>
+            <div class = "drawing-card" number = {{@index}} url = {{drawPath this.url}} owner = {{this.owner}}>
+                <div class = "card-info">
+                    Name: {{this.name}}
+                    <br>
+                    Owner: {{this.owner}}
+                    <p>Creation date:  {{prettyDate this.date}}</p>
                 </div>
-            </a>
+            </div>
         {{/each}}
         {{else}}
             <h1>You have no drawings yet</h1>   
@@ -50,28 +95,107 @@
     </div>
     <ul id = "drawing_ctx_menu">
         <a><li id = "del_option">Delete</li><a>
+        <li id = "ren_option">Rename</li>
     </ul>
     <a href = "/d/c">
         <button id = "create_btn"></button>
     </a>
+    <div id="popup" class="popup">
+        <div class="popup_body">
+            <div class="popup_content">
+               <a href="" class="popup_close">X</a>
+               <div class="popup_title">Wanna rename your room?</div>
+               <div class="popup_text">New name:</div>
+               <input type="text">
+               <button id="rename_btn">Rename</button>
+            </div>
+        </div>
+    </div>
+    <div id="popup2" class="popup">
+        <div class="popup_body">
+            <div class="popup_content">
+                <a href="" class="popup_close">X</a>
+                <div class="popup_title">Are you sure?</div>
+                <button id="yes_btn">Yes</button>
+                <button id="no_btn">No</button>
+            </div>
+        </div>
+    </div>
 <script>
     const ctxMenu = document.getElementById('drawing_ctx_menu')
     let drawingCards = document.getElementsByClassName('drawing-card')
     for(let i = 0;i < drawingCards.length;i++){
+        drawingCards[i].addEventListener('click', () => {
+            let element = document.createElement('a')
+            element.setAttribute('href', drawingCards[i].getAttribute('url'))
+            element.style.display = 'none'
+            document.body.appendChild(element)
+            element.click()
+            document.body.removeChild(element)
+        })
         drawingCards[i].addEventListener('contextmenu', (event) => {
             event.preventDefault()
             ctxMenu.style.top = `${event.clientY}px`
             ctxMenu.style.left = `${event.clientX}px`
             ctxMenu.style.display = 'block'
             let delLink = ctxMenu.children[0]
-            delLink.setAttribute('href', '/d/del/'+i)
-            delLink.style.textDecoration  = 'none'
-            delLink.style.color = 'black'
+            delLink.onclick = () => {
+                let popup = document.getElementById('popup2')
+                popup.style.visibility = 'visible'
+                popup.style.opacity = '1'
+                let noBtn = document.getElementById('no_btn')
+                let yesBtn = document.getElementById('yes_btn')
+                noBtn.onclick = () => {
+                    popup.style.visibility = 'hidden'
+                    popup.style.opacity = '0'
+                }
+                yesBtn.onclick = () => {
+                    fetch('/d/del/'+i)
+                    location.reload()
+                    return false
+                }
+            }
+            let renLink = ctxMenu.children[1]
+            renLink.onclick = () => {
+                ctxMenu.style.display = ''
+                let cardName = drawingCards[i].children[0].childNodes[0].nodeValue.split(':')[1].trim() 
+                let popup = document.getElementById('popup')
+                let renBtn = popup.children[0].children[0].lastElementChild
+                let nameInput = renBtn.previousElementSibling
+                nameInput.setAttribute('placeholder', cardName)
+                popup.style.visibility = 'visible'
+                popup.style.opacity = '1'
+                renBtn.onclick = () => {
+                    if(nameInput.value.length > 0) {
+                        let roomIndex = drawingCards[i].getAttribute('number')
+                        let newName = nameInput.value
+                        fetch(`/d/ren/${roomIndex}?name=${newName}`)
+                        location.reload()
+                        return false
+                    }
+                }
+            }
         })
     }
     ctxMenu.addEventListener('click', (event) => {
         event.stopPropagation()
     })
+    let selOwner = document.getElementById('sel_owner')
+    selOwner.onchange = () => {
+        let mode = selOwner.value
+        let rooms = document.getElementsByClassName('drawing-card')
+        for(let room of rooms){
+            if(mode == 'any'){
+                if(room.style.display === 'none') room.style.display = ''
+            }
+            else if(mode == 'you') {
+                room.style.display = room.getAttribute('owner') == "{{email}}" ? '' : 'none'
+            }
+            else{
+                room.style.display = room.getAttribute('owner') != "{{email}}" ? '' : 'none'
+            }
+        }
+    }
     window.addEventListener('click', () => {
         ctxMenu.style.display = ''
     })

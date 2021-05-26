@@ -8,24 +8,50 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
     <link rel = "stylesheet" href = "../styles/genStyles.css">
     <link rel = "stylesheet" href = "../styles/studio.css">
-    <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #adff2f">
         <a class="navbar-brand" href="">
-            <img src = "../assets/Logo.jpg" alt = "Logo">
+            <img src = "../assets/Logo.jpg" alt = "Logo" id = "logo">
         </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <div class="navbar-nav">
-            <a class="nav-item nav-link" href="/d">Drawings</a>
-            <a class="nav-item nav-link" id = "Settings" href="">Settings</a>
-            <a class="nav-item nav-link" href="">Info</a>
-          </div>
+        <div class="container-fluid">
+            <button
+            class="navbar-toggler"
+            type="button"
+            data-mdb-toggle="collapse"
+            data-mdb-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+            >
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/d">Drawings</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="d-flex align-items-center">
+                <button type="button" id="accset_btn" class="btn btn-secondary me-3 nav-btn">
+                    Access settings
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle nav-btn" type="button" id="profile_btn" data-bs-toggle="dropdown" aria-expanded="false">
+                        Profile
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+                        <li><a class="dropdown-item" href="">{{userName}}</a></li>
+                        <li><a class="dropdown-item" href="">{{email}}</a></li>
+                        <li><a class="dropdown-item" href="">Settings</a></li>
+                        <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </nav>
+    <div id = "room_name">{{name}}</div>
     <div class="bg"></div>
     <div class="bg bg2"></div>
     <div class="bg bg3"></div>
@@ -59,8 +85,14 @@
         <li id = "del_option">Delete</li>
         <li id = "dup_option">Duplicate</li>
     </ul>
-    <div id="canvas-container">
+    <div id="canvas_container">
         <canvas id = "canvas" width = "800" height = "600"></canvas>
+    </div>
+    <div id = "event_bar">
+        <div id = "event_title">
+            <span>Events:</span>
+            <button>Clear list</button> 
+        </div>
     </div>
     <form name="drawingOptions">
         <p>
@@ -84,62 +116,42 @@
             <input type="color" name="c-color">
         </p>
     </form>
+     <div id="popup" class="popup">
+        <div class="popup_body">
+            <div class="popup_content">
+               <a href="" class="popup_close">X</a>
+               <div class="popup_title">
+                   Grant access to user
+                   <br>
+                   Already granted:
+                   {{#each members}}
+                        <br>
+                        {{this}}
+                   {{/each}}
+               </div>
+               <div class="popup_text">User email:</div>
+               <input id="grantor_email" type="text">
+               <button id="grant_btn">Grant</button>
+            </div>
+        </div>
+    </div>
     <script>
-        let activeTool = document.getElementById('pencil')
-        activeTool.style.border = '3px solid black'
-        let curMode = 'pencil'
-        let fillColor = document.forms[0]['f-color']
-        let strokeColor = document.forms[0]['s-color']
-        let canvasColor = document.forms[0]['c-color']
-        let pencilWidth = document.forms[0]['p-width']
-        let pencilOpacity = document.forms[0]['p-opacity']
-        pencilWidth.addEventListener('input', (event) => {
-            ctx.lineWidth = event.target.value
-        })
-        pencilOpacity.addEventListener('input', (event) => {
-            ctx.globalAlpha = event.target.value
-        })
-        fillColor.addEventListener('input', (event) => {
-            ctx.fillStyle = event.target.value
-        })
-        strokeColor.addEventListener('input', (event) => {
-            ctx.strokeStyle = event.target.value
-        })
-        canvasColor.addEventListener('input', (event) => {
-            document.getElementById('canvas').style.backgroundColor = event.target.value
-            ctx.clearRect(0, 0, canv.width, canv.height)
-            ctx.fillStyle = canvasColor.value
-            ctx.fillRect(0, 0, canv.width, canv.height)
-            drawFigures(figures)
-            ctx.fillStyle = fillColor.value
-        })
-        let tools = document.getElementsByClassName('tool')
-        for(let tool of tools){
-            tool.addEventListener('click',() => {
-                activeTool.style.border = ''
-                activeTool = tool
-                tool.style.border = '3px solid black'
-                curMode = activeTool.id
-            })
+        let accSettings = document.getElementById('accset_btn')
+        accSettings.onclick = () => {
+            let popup = document.getElementById('popup')
+            popup.style.visibility = 'visible'
+            popup.style.opacity = '1'
         }
-        window.addEventListener('keypress',(event) => {
-            let keyCode = event.code.slice(event.code.length-1, event.code.length)
-            if(keyCode == 'R'){
-                const worker = Tesseract.createWorker({
-                logger: m => console.log(m)
-                });
-                //Tesseract.setLogging(true);
-                work();
-                async function work() {
-                    await worker.load();
-                    await worker.loadLanguage('rus');
-                    await worker.initialize('rus');
-                    let result = await worker.recognize(document.getElementById('canvas'));
-                    alert(result.data.text);
-                    await worker.terminate();
-                }
+        let grantBtn = document.getElementById('grant_btn')
+        let grantEmail = document.getElementById('grantor_email')
+        grantBtn.onclick = () => {
+            if(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(grantEmail.value)) {
+                fetch(location.pathname + '?email=' + grantEmail.value)
+                popup.style.visibility = 'hidden'
+                popup.style.opacity = '0'
             }
-        })
+            grantEmail.value = ''
+        }
         window.onload = () => {
             fetch("{{dPath roomNumber}}")
             .then((res) => res.json())
@@ -153,6 +165,23 @@
                 ctx.strokeStyle = env.strokeColor
                 drawFigures(env.figures)
                 for(let figure of env.figures){
+                    if(figure.type == 'pencil'){
+                        figure.inOutline = (point) => {
+                            let [x0, y0] = point
+                            return (x0 <= figure.topPoint[0] + figure.width
+                                && x0 >= figure.topPoint[0]
+                                && y0 <= figure.topPoint[1] + figure.height
+                                && y0 >= figure.topPoint[1]
+                            ) 
+                        }
+                        figure.drawOutline = () => {
+                            ctx.strokeRect(figure.topPoint[0], figure.topPoint[1], figure.width, figure.height)
+                        }
+                        figure.clearOutline = () => {
+                            ctx.clearRect(figure.topPoint[0], figure.topPoint[1], figure.width, figure.height)
+                            drawFigures(figures)
+                        }
+                    }
                     figures.push(figure)
                 }
             })
@@ -171,6 +200,15 @@
                 },
                 body: JSON.stringify(env)
             })
+        }
+        window.onbeforeunload = (event) => {
+            /*event = event || window.event
+            event.returnValue = 'You want to leave ? '*/
+            /*let popup = document.getElementById('popup')
+            popup.style.visibility = 'visible'
+            popup.style.opacity = '1'
+            event.preventDefault();
+            event.returnValue = '';*/
         }
     </script>
     <script src = "../scripts/clientSocket.js"></script>

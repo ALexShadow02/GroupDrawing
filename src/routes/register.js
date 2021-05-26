@@ -8,7 +8,6 @@ router.get('/', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-    console.log(req.body)
     let {username : name, email, pass1, pass2} = req.body
     let errors = []
     //Passwords match
