@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" 
+        rel="stylesheet" 
+        crossorigin="anonymous">
     <link rel = "stylesheet" href = "../styles/genStyles.css">
     <link rel = "stylesheet" href = "../styles/drawings.css">
-    <title>Entry</title>
+    <title>Drawings</title>
     <style>
+        
         #drawings{
             top: 0;
             left: 0;
@@ -52,7 +55,7 @@
             outline: none;
         }
 
-        button{
+        form > button{
             width: 50%;
             height: 20%;
             background-color: lime;
@@ -71,11 +74,12 @@
             background-color: rgba(255, 255, 255, 0.9);
             padding: 0.5%;
             border-radius: 15px;
-            border: 0;
+            border: 2px solid black;
+            height: 100%;
         }
 
         #error{
-            margin-top: 25%;
+            margin-top: 18%;
             color: red;
         }
         #close{
@@ -92,15 +96,42 @@
     <div class="bg"></div>
     <div class="bg bg2"></div>
     <div class="bg bg3"></div>
-    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #adff2f">
-        <img src = "assets/Logo.jpg" alt = "Logo">
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <div class="navbar-nav">
-            <a class="nav-item nav-link active" href="/">Home <span class="sr-only">(current)</span></a>
-            <a class="nav-item nav-link" href="d">Drawings</a>
-            <a class="nav-item nav-link" id = "Settings" href="set">Settings</a>
-            <a class="nav-item nav-link" href="">Info</a>
-          </div>
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #adff2f">
+        <a class="navbar-brand" href="">
+            <img src = "../assets/Logo.jpg" alt = "Logo" id = "logo">
+        </a>
+        <div class="container-fluid">
+            <button
+            class="navbar-toggler"
+            type="button"
+            data-mdb-toggle="collapse"
+            data-mdb-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+            >
+            <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="d">Drawings</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle nav-btn" type="button" id="profile_btn" data-bs-toggle="dropdown" aria-expanded="false">
+                        Profile
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton1">
+                        <li><a class="dropdown-item" href="">{{user}}</a></li>
+                        <li><a class="dropdown-item" href="">{{email}}</a></li>
+                        <li><a class="dropdown-item" href="/set">Settings</a></li>
+                        <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </nav>
       <div id = "drawings">
@@ -154,6 +185,8 @@
             auth2.signOut().then(() => console.log('User signed out.'))
         }
     </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
     </body>
   
 </html>

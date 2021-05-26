@@ -6,7 +6,7 @@ const {User} = require('../models/User')
 
 router.get('/', (req, res) => { 
     let errors = req.session.errors || null
-    res.render('settings.hbs', {error: errors, user: req.user.name})
+    res.render('settings.hbs', {error: errors, user: req.user.name,  email : req.user.email})
     req.session.errors = null
 })
 

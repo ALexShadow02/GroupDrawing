@@ -13,8 +13,6 @@ const MongoStore = require('connect-mongo')
 const app = express()
 const wsInstance = require('express-ws')(app)
 const bodyParser = require('body-parser')
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 require('dotenv').config()
 require('./config/auth')(passport)
 const morgan = require('morgan')
@@ -107,7 +105,7 @@ app.use('/assets', (req, res, next) => {
 }, express.static(__dirname + '/src/assets'))
 app.use('/styles', express.static(__dirname + '/src/styles'))
 app.use('/scripts', express.static(__dirname + '/src/scripts'))
-
+app.use('/set', require('./src/routes/settings'))
 app.use('/register', require('./src/routes/register'))
 app.use('/login', require('./src/routes/login'))
 
@@ -117,7 +115,6 @@ app.get('/logout', (req, res) => {
     res.redirect('/login')
 })
 app.use('/d', require('./src/routes/drawings'))
-app.use('/set', require('./src/routes/settings'))
 app.use('/', (req, res) => {
     if(!req.user) {
         req.flash('first_msg', 'You need to log in first')
