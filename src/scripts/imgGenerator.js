@@ -1,3 +1,4 @@
+const { MIME_PNG } = require('jimp')
 const Jimp = require('jimp')
 module.exports = (m, path) => {
     let pixels = []

@@ -4,18 +4,28 @@
     width: 80%;
     min-height: 80%;
     margin: 6% auto;
-    background-color: yellow;
+    background-color: #ffff00;
     border-radius: 15px 50px;
 }
 #draws-title{
+    display: flex;
+    justify-content: space-between;
     width:100%;
-    background-color: pink;
+    background-color: #ffc0cb;
     position: relative;
-    padding-top: 1%;
     padding-left: 1%;
+    padding-right: 3%;
     border-top-left-radius: 15px;
     border-top-right-radius: 50px;
     border-bottom: 1px solid black;
+}
+#sel_owner{
+    background-color: #ffc0cb;
+    border: none;
+}
+#sel_owner option{
+    background-color: #ffff00;
+    border: none;
 }
 .drawing-card{
     display: inline-flex;
@@ -63,10 +73,23 @@
     bottom: 5%;
     height: 80px;
     width: 80px;
-    background-color: white;
+    background: url('../assets/toolbar/plus.svg') white;
+    background-repeat: no-repeat;
+    background-size: 100%;
     border-radius: 50%;
     border: 1px solid white;
 }
 #create_btn:hover{
     box-shadow: 0 0 10px rgba(0,0,0,0.5);;
+}
+.popup_text{
+    display: inline;
+    margin-right: 10px;
+    text-align: center;
+}
+#rename_btn{
+    background-color: yellow;
+    display: block;
+    margin:10px auto;
+    margin-bottom: 0;
 }
