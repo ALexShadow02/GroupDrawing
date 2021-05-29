@@ -31,6 +31,9 @@ hbs.registerHelper('drawPath', (url) => {
 hbs.registerHelper('upPath', (index) => {
     return '/d/upload/' + index
 })
+hbs.registerHelper('imPath', (index) => {
+    return '/d/imload/' + index
+})
 hbs.registerHelper('dPath', (index) => {
     return '/d/dload/' + index
 })
@@ -68,7 +71,6 @@ app.ws('/:room', (ws, req) => {
         }
         return counter
     }
-    //console.log(`${req.user.name} connected. Now there are ${clients.size} connected clients`)
     ws.broadcast(`e:${req.user.name}:${ws.getPeers()}`)
     ws.on('message', (mes) => {
         if(mes == 'gen-img') {
@@ -148,7 +150,7 @@ server.listen(PORT, () => {
 app.listen(PORT, () => {
     console.log(`Listening started on port ${PORT}...`)
 })
-function markRoom(req){
+/*function markRoom(req){
     let rooms =  req.user.rooms
     for(let i = 0;i < rooms.length;i++){
         if(rooms[i].url == req.params.room && rooms[i].owner == req.user.email){
@@ -162,4 +164,4 @@ function markRoom(req){
         }
         break
     }
-}
+}*/

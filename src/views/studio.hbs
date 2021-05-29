@@ -200,6 +200,12 @@
                 },
                 body: JSON.stringify(env)
             })
+            /*canv.toBlob((blob) => {
+                fetch("{{imPath roomNumber}}",{
+                    method : "POST",
+                    body : blob
+                })
+            })*/
         }
         window.onbeforeunload = (event) => {
             /*event = event || window.event

@@ -30,13 +30,13 @@ router.post('/pass', async (req, res) =>{
     const cond3 = newpass === confpass 
     console.log(cond1, cond2, cond3)
     if (!cond1){
-        req.session.errors = "Password dont exist"
+        req.session.errors = 'Password dont exist'
     }
     else if (!cond2){
-        req.session.errors = "Password too small"
+        req.session.errors = 'Password too small'
     }
     else if (!cond3){
-        req.session.errors = "Password not confirmed"
+        req.session.errors = 'Password not confirmed'
     }
     if (cond1 && cond2 && cond3){
         newpassword = await bcrypt.hashSync(newpass)

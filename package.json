@@ -2,12 +2,12 @@
   "name": "group_drawing",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "format": "prettier --write ./public",
     "lint": "eslint *",
-    "build": "npx webpack",
-    "dev": "npx nodemon index.js"
+    "dev": "npx nodemon app.js"
   },
   "repository": {
     "type": "git",
