@@ -1,7 +1,5 @@
 const mongoose = require('mongoose')
 require('dotenv').config()
-const connection = mongoose.createConnection(process.env.DB_STRING,
-{useUnifiedTopology : true, useNewUrlParser : true})
 const UserSchema = new mongoose.Schema({
     name : {
         type : String,
@@ -21,6 +19,9 @@ const UserSchema = new mongoose.Schema({
     },
     rooms : Array
 })
+const connection = mongoose.createConnection(process.env.DATABASE_URL, {
+    useUnifiedTopology : true, 
+    useNewUrlParser : true
+})
 const User = connection.model('User', UserSchema)
 module.exports.User = User
-module.exports.connection = connection
