@@ -5,7 +5,7 @@ branches:
   only:
     - master
 script:
-  - echo "skipping test"
+  - npm run test
   - npm run format
   - npm run lint
 deploy:
