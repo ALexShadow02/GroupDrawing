@@ -8,7 +8,7 @@ router.get('/', (req, res) => {
 })
 
 router.post('/', (req, res) => {
-  let { username: name, email, pass1, pass2 } = req.body
+  let { name, email, pass1, pass2 } = req.body
   let errors = []
   //Passwords match
   if (pass1 != pass2) {
@@ -62,7 +62,7 @@ router.post('/', (req, res) => {
                       'success_msg',
                       'You are successfully registered and can login'
                     )
-                    res.redirect('/login') //redirecting to login page
+                    res.redirect(202, '/login') //redirecting to login page
                   })
                   .catch((err) => console.log(err.message))
               }

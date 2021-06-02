@@ -7,7 +7,8 @@
     "start": "node app.js",
     "format": "prettier --write ./src",
     "lint": "eslint --fix --no-error-on-unmatched-pattern *",
-    "dev": "npx nodemon app.js"
+    "dev": "npx nodemon app.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
