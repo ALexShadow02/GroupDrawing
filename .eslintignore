@@ -1,3 +1,4 @@
 *.json
+*.log
 Procfile
 README.md
