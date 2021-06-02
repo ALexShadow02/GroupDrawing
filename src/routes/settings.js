@@ -9,7 +9,7 @@ router.get('/', (req, res) => {
   res.render('settings.hbs', {
     error: errors,
     user: req.user.name,
-    email: req.user.email,
+    email: req.user.email
   })
   req.session.errors = null
 })

@@ -23,9 +23,10 @@ router.post('/', (req, res) => {
       name,
       email,
       pass1,
-      pass2,
+      pass2
     })
-  } else {
+  } 
+  else {
     //Validation passed
     User.findOne({ name: name })
       .then((user) => {
@@ -35,9 +36,10 @@ router.post('/', (req, res) => {
             errors,
             email,
             pass1,
-            pass2,
+            pass2
           })
-        } else {
+        } 
+        else {
           User.findOne({ email: email })
             .then((user) => {
               if (user) {
@@ -46,14 +48,15 @@ router.post('/', (req, res) => {
                   errors,
                   name,
                   pass1,
-                  pass2,
+                  pass2
                 })
-              } else {
+              } 
+              else {
                 const newUser = new User({
                   name,
                   email,
                   password: bcrypt.hashSync(pass1),
-                  rooms: [],
+                  rooms: []
                 })
                 newUser
                   .save()
@@ -62,7 +65,7 @@ router.post('/', (req, res) => {
                       'success_msg',
                       'You are successfully registered and can login'
                     )
-                    res.redirect(202, '/login') //redirecting to login page
+                    res.redirect('/login')
                   })
                   .catch((err) => console.log(err.message))
               }
