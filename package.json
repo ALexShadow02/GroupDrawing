@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "format": "prettier --write ./src",
-    "lint": "eslint *",
+    "lint": "eslint --fix *",
     "dev": "npx nodemon app.js"
   },
   "repository": {
