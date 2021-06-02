@@ -12,7 +12,6 @@ const MongoStore = require('connect-mongo')
 //-----Servers initialization------
 const app = express()
 const wsInstance = require('express-ws')(app)
-const bodyParser = require('body-parser')
 require('dotenv').config()
 require('./config/auth')(passport)
 const morgan = require('morgan')
