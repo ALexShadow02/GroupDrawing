@@ -21,7 +21,7 @@
 ### Front:
 -HTML
 -CSS
--React
+-Handlebars
 
 ### Back:
 -Node.js
