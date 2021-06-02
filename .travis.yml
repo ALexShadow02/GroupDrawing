@@ -4,6 +4,10 @@ node_js:
 branches:
   only:
     - master
+script:
+  - echo "skipping test"
+  - npm format
+  - npm lint
 deploy:
   provider: heroku
   app: "group-drawing21"
