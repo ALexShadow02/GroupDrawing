@@ -87,7 +87,6 @@ downRouter.get('/:index', (req, res) => {
 })
 const upRouter = express.Router()
 upRouter.post('/:index', (req, res) => {
-    //console.log(req.body.img)
     let roomNumber = req.params.index
     User.findOne({email : req.user.email}, {rooms : 1})
     .then((user) => {
