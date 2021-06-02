@@ -6,8 +6,8 @@ branches:
     - master
 script:
   - echo "skipping test"
-  - npm format
-  - npm lint
+  - npm run format
+  - npm run lint
 deploy:
   provider: heroku
   app: "group-drawing21"
