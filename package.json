@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "format": "prettier --write ./src",
-    "lint": "eslint --fix *",
+    "lint": "eslint --fix --no-error-on-unmatched-pattern *",
     "dev": "npx nodemon app.js"
   },
   "repository": {
