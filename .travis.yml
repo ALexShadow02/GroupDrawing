@@ -5,11 +5,5 @@ branches:
   only:
     - master
 script:
-  - npm run test
   - npm run format
   - npm run lint
-deploy:
-  provider: heroku
-  app: "group-drawing21"
-  api_key:
-    secure: "5d9befc5-6d8d-44d4-a000-75ecb6b426bc"

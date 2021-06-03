@@ -1,6 +1,7 @@
 const app = require('../../app')
 const request = require('supertest')
 const {User} = require('../models/User')
+const mongoose = require('mongoose')
 user1 = {
   name: 'test31', 
   email: 'test1123@test.com', 
@@ -62,5 +63,5 @@ describe('sign up with wrong data', () => {
     test('username exist', async () => {
         const response = await request(app).post('/register').send(user5)
         expect(response.text).toContain('Found')
-    })        
+    })   
 })
