@@ -14,9 +14,6 @@ module.exports = (m, path) => {
         counter++
       }
     }
-    /*image.getBuffer(MIME_PNG, (err, buffer) => {
-
-        })*/
     image.write(path, (err) => {
       if (err) throw err
     })

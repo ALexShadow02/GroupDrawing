@@ -6,7 +6,7 @@ router.get('/', (req, res) => {
   res.render('drawings.hbs', {
     rooms: req.user.rooms,
     name: req.user.name,
-    email: req.user.email,
+    email: req.user.email
   })
 })
 router.get('/c', (req, res) => {
@@ -21,8 +21,8 @@ router.get('/c', (req, res) => {
         figures: [],
         fillColor: '#ff0000',
         strokeColor: '#000000',
-        canvasColor: '#ffffff',
-      },
+        canvasColor: '#ffffff'
+      }
     }
     User.updateOne(
       { email: req.user.email },
@@ -32,7 +32,8 @@ router.get('/c', (req, res) => {
       }
     )
     res.redirect('/d')
-  } else res.end('Login first')
+  } 
+  else res.end('Login first')
 })
 const delRouter = express.Router()
 delRouter.get('/:index', (req, res) => {
@@ -70,7 +71,8 @@ delRouter.get('/:index', (req, res) => {
       )
     })
     res.redirect('/d')
-  } else res.end('Login first')
+  } 
+  else res.end('Login first')
 })
 router.use('/del', delRouter)
 const renRouter = express.Router()
@@ -89,7 +91,8 @@ renRouter.get('/:index', (req, res) => {
         }
       )
     })
-  } else res.redirect('/login')
+  } 
+  else res.redirect('/login')
 })
 router.use('/ren', renRouter)
 const downRouter = express.Router()
@@ -148,7 +151,8 @@ router.get('/:id', (req, res) => {
           }
         }
       })
-    } else {
+    } 
+    else {
       let roomUri = req.params.id
       let userRooms = req.user.rooms
       for (let i = 0; i < userRooms.length; i++) {
@@ -163,6 +167,7 @@ router.get('/:id', (req, res) => {
         }
       }
     }
-  } else res.redirect('/login')
+  } 
+  else res.redirect('/login')
 })
 module.exports = router
