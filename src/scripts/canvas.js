@@ -42,7 +42,8 @@ for (let tool of tools) {
       if (changes.length > 0) {
         let lastChange = changes.pop()
         lastChange.figure.fillStyle = lastChange.color
-      } else figures.pop()
+      }
+ else figures.pop()
       ctx.clearRect(0, 0, canv.width, canv.height)
       drawFigures(figures)
       return
@@ -57,21 +58,25 @@ window.onkeypress = (event) => {
   let keyCode = event.code.slice(event.code.length - 1, event.code.length)
   if (keyCode == 'S') {
     socket.send('gen-img')
-  } else if (keyCode == 'F') {
+  }
+ else if (keyCode == 'F') {
     if (figures.length == 1) alert('There is only one figure on the canvas')
     else alert(`There are ${figures.length} figures on the canvas`)
-  } else if (keyCode == 'C') {
+  }
+ else if (keyCode == 'C') {
     ctx.clearRect(0, 0, canv.width, canv.height)
     ctx.fillStyle = canvasColor.value
     ctx.fillRect(0, 0, canv.width, canv.height)
     ctx.fillStyle = fillColor.value
     figures.length = 0
     socket.send('c.c')
-  } else if (keyCode == 'U') {
+  }
+ else if (keyCode == 'U') {
     if (changes.length > 0) {
       let lastChange = changes.pop()
       lastChange.figure.fillStyle = lastChange.color
-    } else figures.pop()
+    }
+ else figures.pop()
     ctx.clearRect(0, 0, canv.width, canv.height)
     drawFigures(figures)
     socket.send('c.u')
@@ -112,7 +117,8 @@ document.getElementById('dup_option').addEventListener('click', () => {
       ctxFigure.strokeStyle
     )
     figures.push(clonedRect)
-  } else if (ctxFigure.type == 'circle') {
+  }
+ else if (ctxFigure.type == 'circle') {
     let clonedCircle = clone(ctxFigure)
     clonedCircle.centre[0] += 20
     clonedCircle.centre[1] += 20
@@ -123,7 +129,8 @@ document.getElementById('dup_option').addEventListener('click', () => {
       ctxFigure.strokeStyle
     )
     figures.push(clonedCircle)
-  } else if (ctxFigure.type == 'triangle') {
+  }
+ else if (ctxFigure.type == 'triangle') {
     let clonedTriangle = clone(ctxFigure)
     clonedTriangle.topPoint[0] += 20
     clonedTriangle.topPoint[1] += 20
@@ -136,7 +143,8 @@ document.getElementById('dup_option').addEventListener('click', () => {
       ctxFigure.strokeStyle
     )
     figures.push(clonedTriangle)
-  } else if (ctxFigure.type == 'pencil') {
+  }
+ else if (ctxFigure.type == 'pencil') {
     let clonedPencil = clone(ctxFigure)
     for (let point of clonedPencil.points) {
       point[0] += 20
@@ -195,7 +203,8 @@ function customMouseMove(event) {
     ctx.stroke()
     ctx.beginPath()
     ctx.moveTo(x1, y1)
-  } else if (mouseDown && mode == 'spray') {
+  }
+ else if (mouseDown && mode == 'spray') {
     for (let i = 50; i--; ) {
       let radius = 20
       let x2 = x1 + randomInt(-radius, radius)
@@ -203,7 +212,8 @@ function customMouseMove(event) {
       ctx.fillRect(x2, y2, 1, 1)
       points.push([x2, y2])
     }
-  } else if (mouseDown && mode == 'rect') {
+  }
+ else if (mouseDown && mode == 'rect') {
     let [x0, y0] = points[0]
     if (points[1] != undefined) {
       points.pop()
@@ -216,7 +226,8 @@ function customMouseMove(event) {
     let figure = {}
     figure.type = 'rect'
     figures.push(figure)
-  } else if (mouseDown && mode == 'triangle') {
+  }
+ else if (mouseDown && mode == 'triangle') {
     let [x0, y0] = points[0]
     if (points[1] != undefined) {
       points.pop()
@@ -231,7 +242,8 @@ function customMouseMove(event) {
     ctx.lineTo(x1, y1)
     if (x0 > x1) {
       ctx.lineTo(x1 + width, y1)
-    } else {
+    }
+ else {
       ctx.lineTo(x1 - width, y1)
     }
     ctx.closePath()
@@ -239,7 +251,8 @@ function customMouseMove(event) {
     let figure = {}
     figure.type = 'triangle'
     figures.push(figure)
-  } else if (mouseDown && mode == 'circle') {
+  }
+ else if (mouseDown && mode == 'circle') {
     let [x0, y0] = points[0]
     if (points[1] != undefined) {
       points.pop()
@@ -255,7 +268,8 @@ function customMouseMove(event) {
     let figure = {}
     figure.type = 'circle'
     figures.push(figure)
-  } else if (mouseDown && mode == 'move') {
+  }
+ else if (mouseDown && mode == 'move') {
     if (!draggingFigure) return
     let [x0, y0] = points[0]
     let dx = x1 - x0
@@ -263,10 +277,12 @@ function customMouseMove(event) {
     if (draggingFigure.type == 'rect') {
       draggingFigure.points[0][0] += dx
       draggingFigure.points[0][1] += dy
-    } else if (draggingFigure.type == 'triangle') {
+    }
+ else if (draggingFigure.type == 'triangle') {
       draggingFigure.topPoint[0] += dx
       draggingFigure.topPoint[1] += dy
-    } else if (draggingFigure.type == 'circle') {
+    }
+ else if (draggingFigure.type == 'circle') {
       draggingFigure.centre[0] += dx
       draggingFigure.centre[1] += dy
     }
@@ -298,7 +314,8 @@ function customMouseUp(event) {
     let smallerY = y0 < y1 ? y0 : y1
     ctx.strokeRect(smallerX, smallerY, Math.abs(x1 - x0), Math.abs(y1 - y0))
     ctx.fillRect(smallerX, smallerY, Math.abs(x1 - x0), Math.abs(y1 - y0))
-  } else if (mode == 'triangle') {
+  }
+  else if (mode == 'triangle') {
     let [x0, y0] = points[0]
     points.pop()
     figures.pop()
@@ -308,13 +325,15 @@ function customMouseUp(event) {
     ctx.lineTo(x1, y1)
     if (x0 > x1) {
       ctx.lineTo(x1 + width, y1)
-    } else {
+    }
+  else {
       ctx.lineTo(x1 - width, y1)
     }
     ctx.closePath()
     ctx.fill()
     ctx.stroke()
-  } else if (mode == 'circle') {
+  }
+  else if (mode == 'circle') {
     points.pop()
     figures.pop()
     ctx.beginPath()
@@ -327,17 +346,20 @@ function customMouseUp(event) {
     ctx.closePath()
     ctx.stroke()
     ctx.fill()
-  } else if (mode == 'pencil' || mode == 'line') {
+  }
+  else if (mode == 'pencil' || mode == 'line') {
     ctx.lineTo(x1, y1)
     ctx.closePath()
     ctx.stroke()
-  } else if (mode == 'move') {
+  }
+  else if (mode == 'move') {
     if (!draggingFigure) return
     points.length = 0
     if (draggingFigure.type == 'pencil') draggingFigure.clearOutline()
     draggingFigure = null
     return
-  } else if (mode == 'fill') {
+  }
+  else if (mode == 'fill') {
     let locatedFigure = locateFigure([x1, y1])
     changes.push({ figure: locatedFigure, color: locatedFigure.fillStyle })
     fillFigure(locatedFigure)
@@ -348,7 +370,8 @@ function customMouseUp(event) {
   if (mode != 'spray') {
     points.push([x1, y1])
     figure.strokeStyle = ctx.strokeStyle
-  } else figure.fillStyle = ctx.fillStyle
+  }
+  else figure.fillStyle = ctx.fillStyle
   figure.type = mode
   if (figure.type != 'circle' && figure.type != 'triangle')
     figure.points = clone(points)
@@ -356,18 +379,21 @@ function customMouseUp(event) {
     figure.width = Math.floor(x1 - points[0][0])
     figure.height = Math.floor(y1 - points[0][1])
     figure.fillStyle = ctx.fillStyle
-  } else if (mode == 'circle') {
+  }
+  else if (mode == 'circle') {
     figure.centre = points[0]
     figure.radius = Math.abs(Math.floor(x1 - points[0][0]))
     figure.fillStyle = ctx.fillStyle
-  } else if (mode == 'triangle') {
+  }
+  else if (mode == 'triangle') {
     figure.topPoint = points[0]
     figure.width = Math.abs(x1 - points[0][0]) * 2
     figure.height = Math.abs(y1 - points[0][1])
     if (y1 >= points[0][1]) figure.topFlag = true
     else figure.topFlag = false
     figure.fillStyle = ctx.fillStyle
-  } else if (mode == 'pencil') {
+  }
+  else if (mode == 'pencil') {
     let minX = figure.points[0][0]
     let minY = figure.points[0][1]
     let maxX = figure.points[0][0]
@@ -475,7 +501,8 @@ function drawFigure(figure) {
       figure.fillStyle,
       figure.strokeStyle
     )
-  } else if (figure.type == 'triangle') {
+  }
+ else if (figure.type == 'triangle') {
     drawTriangle(
       figure.topPoint,
       figure.topFlag,
@@ -484,20 +511,23 @@ function drawFigure(figure) {
       figure.fillStyle,
       figure.strokeStyle
     )
-  } else if (figure.type == 'circle') {
+  }
+ else if (figure.type == 'circle') {
     drawCircle(
       figure.centre,
       figure.radius,
       figure.fillStyle,
       figure.strokeStyle
     )
-  } else if (figure.type == 'spray') {
+  }
+ else if (figure.type == 'spray') {
     for (let point of figure.points) {
       ctx.fillStyle = figure.fillStyle
       ctx.fillRect(...point, 1, 1)
       ctx.fillStyle = document.forms[0]['f-color'].value
     }
-  } else if (figure.type == 'pencil' || figure.type == 'line') {
+  }
+ else if (figure.type == 'pencil' || figure.type == 'line') {
     ctx.strokeStyle = figure.strokeStyle
     ctx.beginPath()
     ctx.moveTo(...figure.points[0])
@@ -529,7 +559,8 @@ function drawFigures(figures) {
         figure.fillStyle,
         figure.strokeStyle
       )
-    } else if (figure.type == 'triangle') {
+    }
+  else if (figure.type == 'triangle') {
       drawTriangle(
         figure.topPoint,
         figure.topFlag,
@@ -538,20 +569,23 @@ function drawFigures(figures) {
         figure.fillStyle,
         figure.strokeStyle
       )
-    } else if (figure.type == 'circle') {
+    }
+  else if (figure.type == 'circle') {
       drawCircle(
         figure.centre,
         figure.radius,
         figure.fillStyle,
         figure.strokeStyle
       )
-    } else if (figure.type == 'spray') {
+    }
+  else if (figure.type == 'spray') {
       for (let point of figure.points) {
         ctx.fillStyle = figure.fillStyle
         ctx.fillRect(...point, 1, 1)
         ctx.fillStyle = document.forms[0]['f-color'].value
       }
-    } else if (figure.type == 'pencil' || figure.type == 'line') {
+    }
+  else if (figure.type == 'pencil' || figure.type == 'line') {
       ctx.strokeStyle = figure.strokeStyle
       ctx.beginPath()
       ctx.moveTo(...figure.points[0])
@@ -584,14 +618,16 @@ function locateFigure(point) {
       ) {
         return figure
       }
-    } else if (figure.type == 'circle') {
+    }
+  else if (figure.type == 'circle') {
       if (
         Math.abs(x0 - figure.centre[0]) <= figure.radius &&
         Math.abs(y0 - figure.centre[1]) <= figure.radius
       ) {
         return figure
       }
-    } else if (figure.type == 'triangle') {
+    }
+  else if (figure.type == 'triangle') {
       let [x1, y1] = figure.topPoint
       let x2 = x1 - figure.width / 2
       let x3 = x1 + figure.width / 2
@@ -602,7 +638,8 @@ function locateFigure(point) {
       let A2 = calcArea([x1, y1], [x0, y0], [x3, y3])
       let A3 = calcArea([x1, y1], [x2, y2], [x0, y0])
       if (A == A1 + A2 + A3) return figure
-    } else if (figure.type == 'pencil') {
+    }
+  else if (figure.type == 'pencil') {
       if (figure.inOutline(point)) {
         figure.drawOutline()
         return figure
@@ -624,7 +661,8 @@ function fillFigure(figure) {
     ctx.lineTo(x1 + figure.width, y1)
     ctx.closePath()
     ctx.fill()
-  } else {
+  }
+  else {
     ctx.beginPath()
     ctx.arc(...figure.centre, figure.radius, 0, Math.PI * 2)
     ctx.closePath()

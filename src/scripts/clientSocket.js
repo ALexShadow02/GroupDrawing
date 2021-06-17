@@ -21,28 +21,34 @@ socket.onmessage = (mes) => {
       byteArr[i] = imageDataArr[i]
     }
     socket.send(byteArr)
-  } else if (mes.data.slice(0, 2) == 'e:') {
+  }
+  else if (mes.data.slice(0, 2) == 'e:') {
     let [, user, total] = mes.data.split(':')
     createEvent(`${user} has entered. Now there are ${total} users in the room`)
-  } else if (mes.data.slice(0, 2) == 'l:') {
+  }
+  else if (mes.data.slice(0, 2) == 'l:') {
     let [, user, total] = mes.data.split(':')
     if (total > 1)
       createEvent(`${user} has left. Now there are ${total} users in the room`)
     else createEvent(`${user} has left. Now you are the only user in the room`)
-  } else if (mes.data.slice(0, 4) == 'f.d;') {
+  }
+  else if (mes.data.slice(0, 4) == 'f.d;') {
     let [, figure, author] = mes.data.split(';')
     figure = JSON.parse(figure)
     drawFigure(figure)
     figures.push(figure)
     createEvent(`${author} has drawed a ${figure.type}`)
-  } else if (mes.data == 'c.u') {
+  }
+  else if (mes.data == 'c.u') {
     if (changes.length > 0) {
       let lastChange = changes.pop()
       lastChange.figure.fillStyle = lastChange.color
-    } else figures.pop()
+    }
+  else figures.pop()
     ctx.clearRect(0, 0, canv.width, canv.height)
     drawFigures(figures)
-  } else if (mes.data.slice(0, 4) == 'c.c;') {
+  }
+  else if (mes.data.slice(0, 4) == 'c.c;') {
     let [, author] = mes.data.split(';')
     ctx.clearRect(0, 0, canv.width, canv.height)
     ctx.fillStyle = canvasColor.value
@@ -50,10 +56,19 @@ socket.onmessage = (mes) => {
     ctx.fillStyle = fillColor.value
     figures.length = 0
     createEvent(`${author} has cleared the canvas`)
-  } else if (mes.data == 'save') {
+  }
+  else if (mes.data == 'save') {
     download()
   }
 }
+/*window.onunload = () => {
+  let imageDataArr = ctx.getImageData(0, 0, canv.width, canv.height).data
+  let byteArr = new Uint8Array(imageDataArr.length)
+  for (let i = 0; i < imageDataArr.length; i++) {
+    byteArr[i] = imageDataArr[i]
+  }
+  socket.send(byteArr)
+}*/
 function createEvent(text) {
   let newEvent = document.createElement('div')
   newEvent.classList.add('event')
