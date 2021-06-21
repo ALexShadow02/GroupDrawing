@@ -3,7 +3,6 @@ const session = require('express-session')
 const passport = require('passport')
 const flash = require('connect-flash')
 const {User} = require('./src/models/User')
-const hbs = require('hbs')
 const mongoose = require('mongoose')
 const MongoStore = require('connect-mongo')
 
@@ -16,22 +15,7 @@ const PORT = process.env.PORT || 3000
 //-----Midlleware-----
 app.set('view engine', 'hbs')
 app.set('views', './src/views')
-hbs.registerPartials(__dirname + '/src/views/partials')
-hbs.registerHelper('prettyDate', (date) => {
-    return date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear()
-})
-hbs.registerHelper('drawPath', (url) => {
-    return '/d/' + url
-})
-hbs.registerHelper('upPath', (index) => {
-    return '/d/upload/' + index
-})
-hbs.registerHelper('imPath', (index) => {
-    return '/d/imload/' + index
-})
-hbs.registerHelper('dPath', (index) => {
-    return '/d/dload/' + index
-})
+require('./src/scripts/helpers')()
 app.use(express.json())
 app.use(express.urlencoded())
 mongoose.connect(process.env.DATABASE_URL, {
@@ -41,7 +25,7 @@ mongoose.connect(process.env.DATABASE_URL, {
 function mainPart(){
     app.use(session({
         secret : 'secret',
-        cookie : {maxAge : 1000 * 60 * 60 * 24 * 365},
+        cookie : {maxAge : 1000 * 60 * 60 * 24},
         saveUninitialized : true,
         resave : true,
         store : MongoStore.create(mongoose.connection)

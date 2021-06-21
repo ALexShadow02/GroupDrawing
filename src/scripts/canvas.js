@@ -150,8 +150,6 @@ document.getElementById('dup_option').addEventListener('click', () => {
       point[0] += 20
       point[1] += 20
     }
-    /*drawPencil()
-        figures.push(clonedPencil)*/
   }
   ctxFigure = null
   ctxMenu.style.display = ''

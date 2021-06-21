@@ -99,7 +99,6 @@ router.use('/dload', downRouter)
 router.use('/upload', upRouter)
 const imRouter = express.Router()
 imRouter.post('/:index', (req, res) => {
-    let roomNumber = req.params.index
     console.log('Got image')
     console.log(req.body)
 })

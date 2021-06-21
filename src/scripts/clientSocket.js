@@ -61,14 +61,6 @@ socket.onmessage = (mes) => {
     download()
   }
 }
-/*window.onunload = () => {
-  let imageDataArr = ctx.getImageData(0, 0, canv.width, canv.height).data
-  let byteArr = new Uint8Array(imageDataArr.length)
-  for (let i = 0; i < imageDataArr.length; i++) {
-    byteArr[i] = imageDataArr[i]
-  }
-  socket.send(byteArr)
-}*/
 function createEvent(text) {
   let newEvent = document.createElement('div')
   newEvent.classList.add('event')

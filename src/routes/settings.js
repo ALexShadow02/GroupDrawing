@@ -27,11 +27,10 @@ router.post('/name', (req, res) => {
 })
 
 router.post('/pass', async (req, res) => {
-  var passconf = true
   let oldpass = req.body.oldpass
   let newpass = req.body.newpass
   let confpass = req.body.confpass
-
+  
   const user = await User.findOne({ email: req.user.email })
   const cond1 = await bcrypt.compare(oldpass, user.password)
   const cond2 = newpass.length > 7
@@ -39,9 +38,11 @@ router.post('/pass', async (req, res) => {
   console.log(cond1, cond2, cond3)
   if (!cond1) {
     req.session.errors = 'Password dont exist'
-  } else if (!cond2) {
+  } 
+  else if (!cond2) {
     req.session.errors = 'Password too small'
-  } else if (!cond3) {
+  } 
+  else if (!cond3) {
     req.session.errors = 'Password not confirmed'
   }
   if (cond1 && cond2 && cond3) {
