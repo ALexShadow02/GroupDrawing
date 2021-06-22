@@ -5,6 +5,7 @@ const flash = require('connect-flash')
 const {User} = require('./src/models/User')
 const mongoose = require('mongoose')
 const MongoStore = require('connect-mongo')
+const hbs = require('hbs')
 
 //-----Servers initialization------
 const app = express()
@@ -15,6 +16,7 @@ const PORT = process.env.PORT || 3000
 //-----Midlleware-----
 app.set('view engine', 'hbs')
 app.set('views', './src/views')
+hbs.registerPartials(__dirname + '/src/views/partials')
 require('./src/scripts/helpers')()
 app.use(express.json())
 app.use(express.urlencoded())

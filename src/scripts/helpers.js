@@ -1,6 +1,5 @@
 const hbs = require('hbs')
 module.exports = () => {
-    hbs.registerPartials(__dirname + '/src/views/partials')
     hbs.registerHelper('prettyDate', (date) => {
         return date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear()
     })
